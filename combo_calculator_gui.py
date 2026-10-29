@@ -2,6 +2,7 @@
 """
 combo_calculator_gui.py - Ứng dụng Win32 Native cổ điển tính toán và ghép Combo Free Fire.
 Dựa trên nền tảng thuật toán combo_codec.py.
+Hỗ trợ chuyển đổi song ngữ mượt mà: Tiếng Việt và English.
 """
 import os
 import re
@@ -12,12 +13,20 @@ from tkinter.scrolledtext import ScrolledText
 import combo_codec as codec
 
 
+class I18n:
+    current_lang = "vi"
+
+    @classmethod
+    def t(cls, vi, en):
+        return en if cls.current_lang == "en" else vi
+
+
 class ComboCalculatorApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Free Fire Combo Calculator")
-        self.geometry("820x680")
-        self.minsize(800, 650)
+        self.geometry("820x725")
+        self.minsize(800, 680)
         self.configure(bg="#f0f0f0")
 
         # Cài đặt style Win32 cổ điển
@@ -30,14 +39,44 @@ class ComboCalculatorApp(tk.Tk):
         codec.load_characters()
         for del_name in ["Elena", "Alan", "Kepo", "Pre", "Tat", "Metra"]:
             codec.BLOCKS.pop(del_name, None)
+
         self._init_ui()
         self._refresh_choiceboxes()
+        self.change_language("vi")
 
     def _init_ui(self):
         # -------------------------------------------------------------
+        # 0. THANH CHỌN NGÔN NGỮ (LANGUAGE BAR)
+        # -------------------------------------------------------------
+        pnl_header = tk.Frame(self, bg="#f0f0f0")
+        pnl_header.pack(fill="x", padx=12, pady=(6, 2))
+
+        self.cb_lang = ttk.Combobox(
+            pnl_header,
+            state="readonly",
+            width=13,
+            font=("Segoe UI", 9),
+            values=["Tiếng Việt", "English"]
+        )
+        self.cb_lang.current(0)
+        self.cb_lang.pack(side="right")
+        self.cb_lang.bind(
+            "<<ComboboxSelected>>",
+            lambda e: self.change_language("en" if self.cb_lang.current() == 1 else "vi")
+        )
+
+        self.lbl_lang = tk.Label(
+            pnl_header,
+            text="Ngôn ngữ / Language:",
+            font=("Segoe UI", 9, "bold"),
+            bg="#f0f0f0"
+        )
+        self.lbl_lang.pack(side="right", padx=(0, 6))
+
+        # -------------------------------------------------------------
         # 1. NHẬP DỮ LIỆU NHÂN VẬT
         # -------------------------------------------------------------
-        grp1 = tk.LabelFrame(
+        self.grp1 = tk.LabelFrame(
             self,
             text=" 1. Nhập dữ liệu nhân vật ",
             font=("Segoe UI", 9, "bold"),
@@ -45,60 +84,62 @@ class ComboCalculatorApp(tk.Tk):
             padx=10,
             pady=8
         )
-        grp1.pack(fill="x", padx=12, pady=6)
+        self.grp1.pack(fill="x", padx=12, pady=4)
 
         self.slot_entries = []
+        self.slot_labels = []
         for i in range(4):
-            row = tk.Frame(grp1, bg="#f0f0f0")
+            row = tk.Frame(self.grp1, bg="#f0f0f0")
             row.pack(fill="x", pady=2)
             lbl = tk.Label(row, text=f"Slot {i+1}:", width=7, anchor="w", bg="#f0f0f0", font=("Segoe UI", 9))
             lbl.pack(side="left")
+            self.slot_labels.append(lbl)
             ent = tk.Entry(row, font=("Segoe UI", 9))
             ent.pack(side="left", fill="x", expand=True)
             self.slot_entries.append(ent)
 
-        btn_row1 = tk.Frame(grp1, bg="#f0f0f0")
+        btn_row1 = tk.Frame(self.grp1, bg="#f0f0f0")
         btn_row1.pack(fill="x", pady=(5, 0))
-        btn_import = tk.Button(
+        self.btn_import = tk.Button(
             btn_row1,
             text="Nhập",
             font=("Segoe UI", 9, "bold"),
             width=12,
             command=self.on_import_character
         )
-        btn_import.pack(side="left", padx=(50, 6))
+        self.btn_import.pack(side="left", padx=(50, 6))
 
-        btn_clear = tk.Button(
+        self.btn_clear = tk.Button(
             btn_row1,
             text="Xóa trắng",
             font=("Segoe UI", 9),
             width=10,
             command=self.on_clear_inputs
         )
-        btn_clear.pack(side="left")
+        self.btn_clear.pack(side="left")
 
-        btn_guide = tk.Button(
+        self.btn_guide = tk.Button(
             btn_row1,
             text="Cách lấy mã slot",
             font=("Segoe UI", 9),
             command=self.on_show_guide
         )
-        btn_guide.pack(side="left", padx=6)
+        self.btn_guide.pack(side="left", padx=6)
 
-        lbl_guide_hint = tk.Label(
+        self.lbl_guide_hint = tk.Label(
             btn_row1,
             text="(* Bấm 'Cách lấy mã slot' để xem ảnh hướng dẫn)",
             font=("Segoe UI", 8, "italic"),
             fg="#555555",
             bg="#f0f0f0"
         )
-        lbl_guide_hint.pack(side="left", padx=4)
+        self.lbl_guide_hint.pack(side="left", padx=4)
 
         # -------------------------------------------------------------
         # 2. GHÉP THÀNH COMBO
         # Kiểu: {Choicebox1} + {Choicebox2} + {Choicebox3} + {Choicebox4} + {Choicebox5} + {Choicebox6}
         # -------------------------------------------------------------
-        grp2 = tk.LabelFrame(
+        self.grp2 = tk.LabelFrame(
             self,
             text=" 2. Ghép thành combo ",
             font=("Segoe UI", 9, "bold"),
@@ -106,25 +147,27 @@ class ComboCalculatorApp(tk.Tk):
             padx=10,
             pady=8
         )
-        grp2.pack(fill="x", padx=12, pady=6)
+        self.grp2.pack(fill="x", padx=12, pady=4)
 
         # Tiêu đề cột nhỏ
-        header_row = tk.Frame(grp2, bg="#f0f0f0")
+        header_row = tk.Frame(self.grp2, bg="#f0f0f0")
         header_row.pack(fill="x")
-        headers = [
-            ("Slot 1 (Chủ động)", 14),
-            ("Slot 2 (Bị động)", 14),
-            ("Slot 3 (Bị động)", 14),
-            ("Slot 4 (Bị động)", 14),
-            ("Shop Tool", 13),
-            ("Trợ Thủ (Pet)", 14)
+        self.headers_def = [
+            ("Slot 1 (Chủ động)", "Slot 1 (Active)", 14),
+            ("Slot 2 (Bị động)", "Slot 2 (Passive)", 14),
+            ("Slot 3 (Bị động)", "Slot 3 (Passive)", 14),
+            ("Slot 4 (Bị động)", "Slot 4 (Passive)", 14),
+            ("Shop Tool", "Shop Tool", 13),
+            ("Trợ Thủ (Pet)", "Pet Companion", 14)
         ]
-        for h, w in headers:
-            lbl = tk.Label(header_row, text=h, width=w, anchor="w", bg="#f0f0f0", font=("Segoe UI", 8))
+        self.header_labels = []
+        for vi_h, en_h, w in self.headers_def:
+            lbl = tk.Label(header_row, text=vi_h, width=w, anchor="w", bg="#f0f0f0", font=("Segoe UI", 8))
             lbl.pack(side="left", padx=3)
+            self.header_labels.append(lbl)
 
         # Hàng 6 Choicebox kèm dấu +
-        choices_row = tk.Frame(grp2, bg="#f0f0f0")
+        choices_row = tk.Frame(self.grp2, bg="#f0f0f0")
         choices_row.pack(fill="x", pady=3)
 
         self.cb_choices = []
@@ -145,37 +188,37 @@ class ComboCalculatorApp(tk.Tk):
         lbl_plus5.pack(side="left", padx=1)
 
         # Choicebox 6 (Pet)
-        self.cb_pet = ttk.Combobox(choices_row, state="readonly", width=13, font=("Segoe UI", 9))
+        self.cb_pet = ttk.Combobox(choices_row, state="readonly", width=14, font=("Segoe UI", 9))
         self.cb_pet["values"] = ["Không Pet (0)", "Cánh cụt", "Ottero"]
         self.cb_pet.current(0)
         self.cb_pet.pack(side="left", padx=2)
 
         # Nút Ghép Combo ở dưới
-        btn_row2 = tk.Frame(grp2, bg="#f0f0f0")
+        btn_row2 = tk.Frame(self.grp2, bg="#f0f0f0")
         btn_row2.pack(fill="x", pady=(6, 0))
 
-        btn_build = tk.Button(
+        self.btn_build = tk.Button(
             btn_row2,
             text="Ghép Combo",
             font=("Segoe UI", 9, "bold"),
             width=14,
             command=self.on_build_combo
         )
-        btn_build.pack(side="left", padx=(2, 6))
+        self.btn_build.pack(side="left", padx=(2, 6))
 
-        btn_reset = tk.Button(
+        self.btn_reset = tk.Button(
             btn_row2,
             text="Đặt lại",
             font=("Segoe UI", 9),
             width=10,
             command=self.on_reset_combo
         )
-        btn_reset.pack(side="left")
+        self.btn_reset.pack(side="left")
 
         # -------------------------------------------------------------
         # 3. THANH PROGRESS VÀ KẾT QUẢ TÍNH COMBO
         # -------------------------------------------------------------
-        grp3 = tk.LabelFrame(
+        self.grp3 = tk.LabelFrame(
             self,
             text=" 3. Thanh progress và kết quả tính combo ",
             font=("Segoe UI", 9, "bold"),
@@ -183,10 +226,10 @@ class ComboCalculatorApp(tk.Tk):
             padx=10,
             pady=8
         )
-        grp3.pack(fill="both", expand=True, padx=12, pady=6)
+        self.grp3.pack(fill="both", expand=True, padx=12, pady=4)
 
         self.lbl_progress_text = tk.Label(
-            grp3,
+            self.grp3,
             text="Tiến độ sẵn sàng",
             anchor="w",
             bg="#f0f0f0",
@@ -194,19 +237,19 @@ class ComboCalculatorApp(tk.Tk):
         )
         self.lbl_progress_text.pack(fill="x")
 
-        self.progress_bar = ttk.Progressbar(grp3, orient="horizontal", mode="determinate")
+        self.progress_bar = ttk.Progressbar(self.grp3, orient="horizontal", mode="determinate")
         self.progress_bar.pack(fill="x", pady=2)
 
-        lbl_res = tk.Label(
-            grp3,
+        self.lbl_res = tk.Label(
+            self.grp3,
             text="Mã Combo Free Fire (#FF#...):",
             anchor="w",
             bg="#f0f0f0",
             font=("Segoe UI", 9)
         )
-        lbl_res.pack(fill="x", pady=(6, 1))
+        self.lbl_res.pack(fill="x", pady=(6, 1))
 
-        res_row = tk.Frame(grp3, bg="#f0f0f0")
+        res_row = tk.Frame(self.grp3, bg="#f0f0f0")
         res_row.pack(fill="x", pady=2)
 
         self.txt_result = tk.Entry(
@@ -218,35 +261,35 @@ class ComboCalculatorApp(tk.Tk):
         )
         self.txt_result.pack(side="left", fill="x", expand=True, padx=(0, 6))
 
-        btn_copy = tk.Button(
+        self.btn_copy = tk.Button(
             res_row,
             text="Sao chép mã",
             font=("Segoe UI", 9, "bold"),
             width=12,
             command=self.on_copy_result
         )
-        btn_copy.pack(side="left", padx=2)
+        self.btn_copy.pack(side="left", padx=2)
 
-        btn_verify = tk.Button(
+        self.btn_verify = tk.Button(
             res_row,
-            text="Giải ngược",
-            font=("Segoe UI", 9),
+            text="Giải Combo",
+            font=("Segoe UI", 9, "bold"),
             width=11,
             command=self.on_verify_result
         )
-        btn_verify.pack(side="left", padx=2)
+        self.btn_verify.pack(side="left", padx=2)
 
-        lbl_log = tk.Label(
-            grp3,
+        self.lbl_log = tk.Label(
+            self.grp3,
             text="Chi tiết phân tích & Nhật ký:",
             anchor="w",
             bg="#f0f0f0",
             font=("Segoe UI", 9)
         )
-        lbl_log.pack(fill="x", pady=(6, 1))
+        self.lbl_log.pack(fill="x", pady=(6, 1))
 
         self.log_area = ScrolledText(
-            grp3,
+            self.grp3,
             font=("Consolas", 9),
             bg="white",
             relief="solid",
@@ -254,6 +297,47 @@ class ComboCalculatorApp(tk.Tk):
             height=10
         )
         self.log_area.pack(fill="both", expand=True, pady=2)
+
+    def change_language(self, lang):
+        I18n.current_lang = lang
+        self.cb_lang.current(1 if lang == "en" else 0)
+
+        # Phần 1
+        self.grp1.config(text=I18n.t(" 1. Nhập dữ liệu nhân vật ", " 1. Character Data Input "))
+        self.btn_import.config(text=I18n.t("Nhập", "Import"))
+        self.btn_clear.config(text=I18n.t("Xóa trắng", "Clear"))
+        self.btn_guide.config(text=I18n.t("Cách lấy mã slot", "Slot Guide"))
+        self.lbl_guide_hint.config(
+            text=I18n.t(
+                "(* Bấm 'Cách lấy mã slot' để xem ảnh hướng dẫn)",
+                "(* Click 'Slot Guide' to view tutorial on extracting codes from game)"
+            )
+        )
+
+        # Phần 2
+        self.grp2.config(text=I18n.t(" 2. Ghép thành combo ", " 2. Assemble Combo "))
+        for i, (vi_h, en_h, w) in enumerate(self.headers_def):
+            self.header_labels[i].config(text=en_h if lang == "en" else vi_h)
+
+        cur_shop = self.cb_shop.current()
+        self.cb_shop["values"] = ["No Shop Tool", "With Shop Tool"] if lang == "en" else ["Không Shop", "Có Shop Tool"]
+        self.cb_shop.current(cur_shop if 0 <= cur_shop < len(self.cb_shop["values"]) else 0)
+
+        cur_pet = self.cb_pet.current()
+        self.cb_pet["values"] = ["No Pet (0)", "Mr. Waggor (Penguin)", "Ottero"] if lang == "en" else ["Không Pet (0)", "Cánh cụt", "Ottero"]
+        self.cb_pet.current(cur_pet if 0 <= cur_pet < len(self.cb_pet["values"]) else 0)
+
+        self.btn_build.config(text=I18n.t("Ghép Combo", "Assemble Combo"))
+        self.btn_reset.config(text=I18n.t("Đặt lại", "Reset"))
+
+        # Phần 3
+        self.grp3.config(text=I18n.t(" 3. Thanh progress và kết quả tính combo ", " 3. Progress & Calculation Result "))
+        if self.progress_bar["value"] in (0, 100):
+            self.lbl_progress_text.config(text=I18n.t("Tiến độ sẵn sàng", "Ready"))
+        self.lbl_res.config(text=I18n.t("Mã Combo Free Fire (#FF#...):", "Free Fire Combo Code (#FF#...):"))
+        self.btn_copy.config(text=I18n.t("Sao chép mã", "Copy Code"))
+        self.btn_verify.config(text=I18n.t("Giải Combo", "Solve Combo"))
+        self.lbl_log.config(text=I18n.t("Chi tiết phân tích & Nhật ký:", "Analysis Details & Activity Log:"))
 
     def _refresh_choiceboxes(self, select_name=None):
         chars = sorted(list(codec.BLOCKS.keys()), key=lambda s: s.lower())
@@ -299,20 +383,25 @@ class ComboCalculatorApp(tk.Tk):
 
     def on_show_guide(self):
         guide_win = tk.Toplevel(self)
-        guide_win.title("Hướng dẫn: Cách lấy mã slot")
+        guide_win.title(I18n.t("Hướng dẫn: Cách lấy mã slot", "Guide: How to Extract Slot Codes"))
         guide_win.geometry("700x745")
         guide_win.minsize(680, 700)
         guide_win.configure(bg="#f0f0f0")
         guide_win.transient(self)
         guide_win.grab_set()
 
+        guide_text = I18n.t(
+            "Để lấy mã của các slot để nhập một nhân vật mới vào hộp chọn trong phần ghép combo "
+            "thì hãy vào game rồi chọn 1 nhân vật duy nhất cần nhập vào rồi làm theo hình ảnh để "
+            "lấy mã các slot của nhân vật mong muốn.",
+            "To obtain the slot codes for adding a new character into the selection boxes, "
+            "enter the game, equip only that single character, and follow the screenshot instructions "
+            "to copy the codes for each slot."
+        )
+
         lbl_text = tk.Label(
             guide_win,
-            text=(
-                "Để lấy mã của các slot để nhập một nhân vật mới vào hộp chọn trong phần ghép combo "
-                "thì hãy vào game rồi chọn 1 nhân vật duy nhất cần nhập vào rồi làm theo hình ảnh để "
-                "lấy mã các slot của nhân vật mong muốn."
-            ),
+            text=guide_text,
             font=("Segoe UI", 9),
             wraplength=660,
             justify="left",
@@ -329,15 +418,15 @@ class ComboCalculatorApp(tk.Tk):
                 lbl_img = tk.Label(guide_win, image=self._guide_photo, bg="black", relief="solid", bd=1)
                 lbl_img.pack(padx=12, pady=5)
             except Exception as e:
-                lbl_err = tk.Label(guide_win, text=f"Lỗi hiển thị ảnh: {e}", fg="red", bg="#f0f0f0")
+                lbl_err = tk.Label(guide_win, text=f"Error loading image: {e}", fg="red", bg="#f0f0f0")
                 lbl_err.pack(pady=10)
         else:
-            lbl_err = tk.Label(guide_win, text=f"Không tìm thấy file ảnh: {img_path}", fg="red", bg="#f0f0f0")
+            lbl_err = tk.Label(guide_win, text=f"Image file not found: {img_path}", fg="red", bg="#f0f0f0")
             lbl_err.pack(pady=10)
 
         btn_close = tk.Button(
             guide_win,
-            text="Đóng",
+            text=I18n.t("Đóng", "Close"),
             font=("Segoe UI", 9, "bold"),
             width=12,
             command=guide_win.destroy
@@ -367,7 +456,10 @@ class ComboCalculatorApp(tk.Tk):
             try:
                 p = codec.plain_of(code)
                 if len(p) < 2 or p[0] != 0 or p[1] != codec.SEP:
-                    messagebox.showerror("Lỗi", f"Mã ở Slot {i+1} có header không đúng!")
+                    messagebox.showerror(
+                        I18n.t("Lỗi", "Error"),
+                        I18n.t(f"Mã ở Slot {i+1} có header không đúng!", f"Code in Slot {i+1} has an invalid header!")
+                    )
                     return
 
                 # Tách segments
@@ -379,25 +471,38 @@ class ComboCalculatorApp(tk.Tk):
                         cur = []
                     else:
                         cur.append(v)
-                segs.append(cur)
+                    segs.append(cur)
 
                 if len(segs) < 4:
-                    messagebox.showerror("Lỗi", f"Mã ở Slot {i+1} không đủ 4 slot!")
+                    messagebox.showerror(
+                        I18n.t("Lỗi", "Error"),
+                        I18n.t(f"Mã ở Slot {i+1} không đủ 4 slot!", f"Code in Slot {i+1} does not have all 4 slots!")
+                    )
                     return
 
                 target_seg = segs[i]
                 if target_seg == codec.NONE_SEG:
-                    messagebox.showwarning("Thông báo", f"Mã ở Slot {i+1} là slot trống (none)!")
+                    messagebox.showwarning(
+                        I18n.t("Thông báo", "Notice"),
+                        I18n.t(f"Mã ở Slot {i+1} là slot trống (none)!", f"Slot {i+1} code is an empty slot (none)!")
+                    )
                     return
 
                 filled_slots.append(i + 1)
                 extracted_blocks.append(target_seg)
             except Exception as e:
-                messagebox.showerror("Lỗi giải mã", f"Không thể giải mã Slot {i+1}: {e}")
+                messagebox.showerror(
+                    I18n.t("Lỗi giải mã", "Decoding Error"),
+                    I18n.t(f"Không thể giải mã Slot {i+1}: {e}", f"Cannot decode Slot {i+1}: {e}")
+                )
                 return
 
         if not filled_slots:
-            messagebox.showinfo("Chưa có dữ liệu", "Vui lòng nhập ít nhất 1 mã (#FF#...) vào các ô Slot 1..4!")
+            messagebox.showinfo(
+                I18n.t("Chưa có dữ liệu", "No Input Data"),
+                I18n.t("Vui lòng nhập ít nhất 1 mã (#FF#...) vào các ô Slot 1..4!",
+                       "Please enter at least one code (#FF#...) into Slots 1..4!")
+            )
             return
 
         # Kiểm tra tính đồng nhất giữa các slot
@@ -405,10 +510,15 @@ class ComboCalculatorApp(tk.Tk):
         for j in range(1, len(extracted_blocks)):
             if extracted_blocks[j] != first_b:
                 messagebox.showwarning(
-                    "Không đồng nhất",
-                    f"Cảnh báo: Khối trích xuất ở Slot {filled_slots[j]} khác Slot {filled_slots[0]}!\n"
-                    f"Slot {filled_slots[0]}: {first_b}\n"
-                    f"Slot {filled_slots[j]}: {extracted_blocks[j]}"
+                    I18n.t("Không đồng nhất", "Inconsistency Warning"),
+                    I18n.t(
+                        f"Cảnh báo: Khối trích xuất ở Slot {filled_slots[j]} khác Slot {filled_slots[0]}!\n"
+                        f"Slot {filled_slots[0]}: {first_b}\n"
+                        f"Slot {filled_slots[j]}: {extracted_blocks[j]}",
+                        f"Warning: Extracted byte block in Slot {filled_slots[j]} differs from Slot {filled_slots[0]}!\n"
+                        f"Slot {filled_slots[0]}: {first_b}\n"
+                        f"Slot {filled_slots[j]}: {extracted_blocks[j]}"
+                    )
                 )
                 return
 
@@ -428,20 +538,42 @@ class ComboCalculatorApp(tk.Tk):
                         break
 
             if existing:
-                msg = f"==> NHẬP DỮ LIỆU: Nhân vật đã có sẵn!\n- Tên: {existing}\n- Khối: {first_b}\n- Khớp qua các slot: {filled_slots}"
+                msg = I18n.t(
+                    f"==> NHẬP DỮ LIỆU: Nhân vật đã có sẵn!\n- Tên: {existing}\n- Khối: {first_b}\n- Khớp qua các slot: {filled_slots}",
+                    f"==> DATA IMPORT: Character already exists!\n- Name: {existing}\n- Block: {first_b}\n- Matched slots: {filled_slots}"
+                )
                 self.append_log(msg)
                 self.txt_result.delete(0, "end")
                 self.txt_result.insert(0, existing)
                 self._refresh_choiceboxes(existing)
-                self.lbl_progress_text.config(text=f"Đã nhận diện: {existing}")
-                messagebox.showinfo("Đã nhận diện", f"Nhân vật đã có sẵn: {existing} (Khối: {first_b})")
+                self.lbl_progress_text.config(
+                    text=I18n.t(f"Đã nhận diện: {existing}", f"Identified: {existing}")
+                )
+                messagebox.showinfo(
+                    I18n.t("Đã nhận diện", "Identified"),
+                    I18n.t(f"Nhân vật đã có sẵn: {existing} (Khối: {first_b})",
+                           f"Character already exists: {existing} (Block: {first_b})")
+                )
             else:
                 # Nhân vật mới
-                prompt_text = f"Phát hiện nhân vật mới!\nKhối byte: {first_b}\nNhập tên nhân vật:"
-                new_name = simpledialog.askstring("Nhân vật mới", prompt_text, initialvalue=detected_name, parent=self)
+                prompt_text = I18n.t(
+                    f"Phát hiện nhân vật mới!\nKhối byte: {first_b}\nNhập tên nhân vật:",
+                    f"New character detected!\nByte block: {first_b}\nEnter character name:"
+                )
+                new_name = simpledialog.askstring(
+                    I18n.t("Nhân vật mới", "New Character"),
+                    prompt_text,
+                    initialvalue=detected_name,
+                    parent=self
+                )
                 if not new_name or not new_name.strip():
-                    self.append_log(f"Đã hủy thêm nhân vật mới (khối: {first_b}).")
-                    self.lbl_progress_text.config(text="Đã hủy lưu nhân vật mới.")
+                    self.append_log(
+                        I18n.t(f"Đã hủy thêm nhân vật mới (khối: {first_b}).",
+                               f"Cancelled adding new character (block: {first_b}).")
+                    )
+                    self.lbl_progress_text.config(
+                        text=I18n.t("Đã hủy lưu nhân vật mới.", "Cancelled saving new character.")
+                    )
                     return
 
                 new_name = new_name.strip()
@@ -449,12 +581,23 @@ class ComboCalculatorApp(tk.Tk):
                 self._refresh_choiceboxes(new_name)
                 self.txt_result.delete(0, "end")
                 self.txt_result.insert(0, new_name)
-                msg = f"==> THÀNH CÔNG: Đã lưu nhân vật mới!\n- Tên: {new_name}\n- Khối byte: {first_b}\n- Cập nhật Choicebox."
+                msg = I18n.t(
+                    f"==> THÀNH CÔNG: Đã lưu nhân vật mới!\n- Tên: {new_name}\n- Khối byte: {first_b}\n- Cập nhật Choicebox.",
+                    f"==> SUCCESS: Saved new character!\n- Name: {new_name}\n- Byte block: {first_b}\n- Choiceboxes updated."
+                )
                 self.append_log(msg)
-                self.lbl_progress_text.config(text=f"Đã lưu thành công: {new_name}")
-                messagebox.showinfo("Thành công", f"Đã lưu thành công nhân vật '{new_name}'!")
+                self.lbl_progress_text.config(
+                    text=I18n.t(f"Đã lưu thành công: {new_name}", f"Successfully saved: {new_name}")
+                )
+                messagebox.showinfo(
+                    I18n.t("Thành công", "Success"),
+                    I18n.t(f"Đã lưu thành công nhân vật '{new_name}'!", f"Successfully saved character '{new_name}'!")
+                )
 
-        self.start_progress("Đang phân tích dữ liệu nhân vật...", process_done)
+        self.start_progress(
+            I18n.t("Đang phân tích dữ liệu nhân vật...", "Analyzing character data..."),
+            process_done
+        )
 
     # -----------------------------------------------------------------
     # Logic Phần 2: Ghép thành combo
@@ -481,26 +624,51 @@ class ComboCalculatorApp(tk.Tk):
                 verify_ok = (dec["slots"] == want and bool(dec["shop"]) == bool(shop) and dec["pet"] == pet)
 
                 is_inferred = (shop and pet > 0)
-                status = "SUY LUẬN (Bật đồng thời cả Pet và Shop)" if is_inferred else "ĐÃ KIỂM CHỨNG"
+                status_vi = "SUY LUẬN (Bật đồng thời cả Pet và Shop)" if is_inferred else "ĐÃ KIỂM CHỨNG"
+                status_en = "INFERRED (Both Pet and Shop enabled)" if is_inferred else "VERIFIED"
+                status = I18n.t(status_vi, status_en)
 
-                pet_name = "Không Pet" if pet == 0 else ("Cánh cụt" if pet == 1 else "Ottero")
-                log_lines = [
-                    "==================================================",
-                    "KẾT QUẢ TÍNH COMBO FREE FIRE:",
-                    f"Mã: {code}",
-                    f"Tình trạng: {status}",
-                    f"Giải ngược tự động: {'PASS (100% Khớp)' if verify_ok else 'FAIL'}",
-                    f"Tổ hợp: {' + '.join(slots)} | Shop: {'Có' if shop else 'Không'} | Trợ thủ: {pet_name}",
-                    f"Độ dài: {dec['length']} byte",
-                    "=================================================="
-                ]
+                if I18n.current_lang == "en":
+                    pet_name = "No Pet" if pet == 0 else ("Mr. Waggor (Penguin)" if pet == 1 else "Ottero")
+                    log_lines = [
+                        "==================================================",
+                        "FREE FIRE COMBO CALCULATION RESULT:",
+                        f"Code: {code}",
+                        f"Status: {status}",
+                        f"Automatic Verification: {'PASS (100% Match)' if verify_ok else 'FAIL'}",
+                        f"Combination: {' + '.join(slots)} | Shop: {'Yes' if shop else 'No'} | Pet: {pet_name}",
+                        f"Data Length: {dec['length']} bytes",
+                        "=================================================="
+                    ]
+                else:
+                    pet_name = "Không Pet" if pet == 0 else ("Cánh cụt" if pet == 1 else "Ottero")
+                    log_lines = [
+                        "==================================================",
+                        "KẾT QUẢ TÍNH COMBO FREE FIRE:",
+                        f"Mã: {code}",
+                        f"Tình trạng: {status}",
+                        f"Giải ngược tự động: {'PASS (100% Khớp)' if verify_ok else 'FAIL'}",
+                        f"Tổ hợp: {' + '.join(slots)} | Shop: {'Có' if shop else 'Không'} | Trợ thủ: {pet_name}",
+                        f"Độ dài: {dec['length']} byte",
+                        "=================================================="
+                    ]
                 self.append_log("\n".join(log_lines))
-                self.lbl_progress_text.config(text=f"Ghép combo hoàn tất! ({'PASS' if verify_ok else 'Cảnh báo'})")
+                self.lbl_progress_text.config(
+                    text=I18n.t(
+                        f"Ghép combo hoàn tất! ({'PASS' if verify_ok else 'Cảnh báo'})",
+                        f"Combo assembly complete! ({'PASS' if verify_ok else 'Warning'})"
+                    )
+                )
             except Exception as e:
-                messagebox.showerror("Lỗi ghép combo", str(e))
-                self.lbl_progress_text.config(text="Lỗi tính combo!")
+                messagebox.showerror(I18n.t("Lỗi ghép combo", "Combo Assembly Error"), str(e))
+                self.lbl_progress_text.config(
+                    text=I18n.t("Lỗi tính combo!", "Combo calculation error!")
+                )
 
-        self.start_progress("Đang ghép và giải mã kiểm chứng combo...", do_build)
+        self.start_progress(
+            I18n.t("Đang ghép và giải mã kiểm chứng combo...", "Assembling and verifying combo code..."),
+            do_build
+        )
 
     # -----------------------------------------------------------------
     # Logic Phần 3: Sao chép & Giải ngược
@@ -510,36 +678,497 @@ class ComboCalculatorApp(tk.Tk):
         if val:
             self.clipboard_clear()
             self.clipboard_append(val)
-            self.lbl_progress_text.config(text="Đã sao chép mã combo vào Clipboard!")
+            self.lbl_progress_text.config(
+                text=I18n.t("Đã sao chép mã combo vào Clipboard!", "Combo code copied to Clipboard!")
+            )
 
     def on_verify_result(self):
         code = self.txt_result.get().strip()
         if not code:
-            messagebox.showinfo("Thông báo", "Chưa có mã để giải ngược!")
+            code = simpledialog.askstring(
+                I18n.t("Giải Combo", "Solve Combo"),
+                I18n.t("Vui lòng nhập hoặc dán mã combo (#FF#...):",
+                       "Please enter or paste Free Fire combo code (#FF#...):"),
+                parent=self
+            )
+            if not code or not code.strip():
+                return
+            code = code.strip()
+            self.txt_result.delete(0, "end")
+            self.txt_result.insert(0, code)
+
+        m = re.search(r"#FF#([A-Za-z0-9+/=]+)", code)
+        if not m:
+            messagebox.showerror(
+                I18n.t("Lỗi định dạng", "Format Error"),
+                I18n.t("Mã combo không đúng định dạng (cần bắt đầu bằng #FF#)!",
+                       "Invalid combo code format (must start with #FF#)!")
+            )
             return
+        clean_code = "#FF#" + m.group(1)
 
         def do_verify():
             try:
-                dec = codec.decode(code)
-                info = (
-                    "--- KẾT QUẢ GIẢI NGƯỢC CHI TIẾT ---\n"
-                    f"Mã nguồn: {code}\n"
-                    f"Độ dài: {dec['length']} byte\n"
-                    f"Slot 1: {dec['slots'][0]}\n"
-                    f"Slot 2: {dec['slots'][1]}\n"
-                    f"Slot 3: {dec['slots'][2]}\n"
-                    f"Slot 4: {dec['slots'][3]}\n"
-                    f"Shop: {'Có Shop Tool' if dec['shop'] else 'Không Shop'}\n"
-                    f"Trợ thủ (Pet): {'Không Pet' if dec['pet'] == 0 else ('Cánh cụt' if dec['pet'] == 1 else 'Ottero')}\n"
-                    "-----------------------------------"
+                res = codec.analyze_combo(clean_code, lang=I18n.current_lang)
+                if I18n.current_lang == "en":
+                    lines = [
+                        "==================================================",
+                        "FREE FIRE COMBO SYNTHESIS ANALYSIS RESULT:",
+                        f"Source Code: {clean_code}",
+                        f"Data Length: {res['length']} bytes",
+                    ]
+                    for s in res["slots"]:
+                        lines.append(f"Slot {s['slot']}: {s['name']} (block: {s['block']})")
+                    lines.append(f"Shop Tool: {res['shop']['status']} (block: {res['shop']['block']})")
+                    lines.append(f"Pet Companion: {res['pet']['name']} (block: {res['pet']['block']})")
+                    lines.append("==================================================")
+                else:
+                    lines = [
+                        "==================================================",
+                        "KẾT QUẢ PHÂN TÍCH TỔNG HỢP COMBO FREE FIRE:",
+                        f"Mã nguồn: {clean_code}",
+                        f"Độ dài dữ liệu: {res['length']} byte",
+                    ]
+                    for s in res["slots"]:
+                        lines.append(f"Slot {s['slot']}: {s['name']} (khối: {s['block']})")
+                    lines.append(f"Shop Tool: {res['shop']['status']} (khối: {res['shop']['block']})")
+                    lines.append(f"Trợ thủ (Pet): {res['pet']['name']} (khối: {res['pet']['block']})")
+                    lines.append("==================================================")
+                self.append_log("\n".join(lines))
+                self.lbl_progress_text.config(
+                    text=I18n.t("Phân tích combo hoàn tất!", "Combo analysis complete!")
                 )
-                self.append_log(info)
-                self.lbl_progress_text.config(text="Giải ngược thành công!")
-                messagebox.showinfo("Kết quả giải ngược", info)
-            except Exception as e:
-                messagebox.showerror("Lỗi giải ngược", str(e))
 
-        self.start_progress("Đang giải ngược mã...", do_verify)
+                # Mở hộp thoại phân tích chi tiết
+                ComboAnalysisDialog(self, res)
+            except Exception as e:
+                messagebox.showerror(I18n.t("Lỗi giải combo", "Solve Combo Error"), str(e))
+                self.lbl_progress_text.config(
+                    text=I18n.t("Lỗi giải combo!", "Solve combo error!")
+                )
+
+        self.start_progress(
+            I18n.t("Đang phân tích và tổng hợp combo...", "Analyzing and synthesizing combo components..."),
+            do_verify
+        )
+
+
+class ComboAnalysisDialog(tk.Toplevel):
+    def __init__(self, master, data):
+        super().__init__(master)
+        self.master = master
+        self.data = data
+        self.title(I18n.t("Giải Combo - Phân tích chi tiết thành phần", "Solve Combo - Component Analysis"))
+        self.geometry("760x710")
+        self.minsize(740, 680)
+        self.configure(bg="#f0f0f0")
+        self.transient(master)
+        self.grab_set()
+
+        self.btn_item_details = []
+        self._init_ui()
+        self.select_component(0)
+
+    def _init_ui(self):
+        # 1. Mã combo nguồn
+        grp_source_text = I18n.t(
+            f" Mã combo được phân tích ({self.data['length']} bytes giải mã) ",
+            f" Analyzed Combo Code ({self.data['length']} decoded bytes) "
+        )
+        grp_source = tk.LabelFrame(
+            self,
+            text=grp_source_text,
+            font=("Segoe UI", 9, "bold"),
+            bg="#f0f0f0",
+            padx=10,
+            pady=6
+        )
+        grp_source.pack(fill="x", padx=12, pady=(8, 4))
+
+        src_row = tk.Frame(grp_source, bg="#f0f0f0")
+        src_row.pack(fill="x")
+        self.ent_src = tk.Entry(src_row, font=("Consolas", 9, "bold"), bg="white", relief="solid", bd=1)
+        self.ent_src.insert(0, self.data["code"])
+        self.ent_src.config(state="readonly")
+        self.ent_src.pack(side="left", fill="x", expand=True, padx=(0, 6))
+
+        btn_copy_src = tk.Button(
+            src_row,
+            text=I18n.t("Sao chép", "Copy"),
+            font=("Segoe UI", 9, "bold"),
+            width=10,
+            command=lambda: self._copy_to_clip(
+                self.data["code"],
+                I18n.t("Đã sao chép mã combo vào Clipboard!", "Combo code copied to Clipboard!")
+            )
+        )
+        btn_copy_src.pack(side="left")
+
+        # 2. Danh sách các thành phần
+        grp_items = tk.LabelFrame(
+            self,
+            text=I18n.t(" Các thành phần nhận diện bên trong Combo ", " Recognized Combo Components "),
+            font=("Segoe UI", 9, "bold"),
+            bg="#f0f0f0",
+            padx=10,
+            pady=6
+        )
+        grp_items.pack(fill="x", padx=12, pady=4)
+
+        header_row = tk.Frame(grp_items, bg="#f0f0f0")
+        header_row.pack(fill="x", pady=(0, 4))
+        tk.Label(
+            header_row,
+            text=I18n.t("Vị trí", "Position"),
+            width=18,
+            anchor="w",
+            font=("Segoe UI", 8, "bold"),
+            bg="#f0f0f0"
+        ).pack(side="left")
+
+        tk.Label(
+            header_row,
+            text=I18n.t("Tên nhận diện / Trạng thái", "Name / Status"),
+            width=24,
+            anchor="w",
+            font=("Segoe UI", 8, "bold"),
+            bg="#f0f0f0"
+        ).pack(side="left")
+
+        tk.Label(
+            header_row,
+            text=I18n.t("Khối byte dữ liệu", "Data Bytes Block"),
+            width=30,
+            anchor="w",
+            font=("Segoe UI", 8, "bold"),
+            bg="#f0f0f0"
+        ).pack(side="left")
+
+        tk.Label(
+            header_row,
+            text=I18n.t("Tác vụ", "Action"),
+            width=12,
+            anchor="w",
+            font=("Segoe UI", 8, "bold"),
+            bg="#f0f0f0"
+        ).pack(side="left")
+
+        self.rows_info = []
+        for s in self.data["slots"]:
+            pos_text = I18n.t(
+                f"Slot {s['slot']} ({'Chủ động' if s['slot'] == 1 else 'Bị động'})",
+                f"Slot {s['slot']} ({'Active' if s['slot'] == 1 else 'Passive'})"
+            )
+            name_text = s["name"]
+            if name_text == "none":
+                name_text = I18n.t("none (Trống)", "none (Empty)")
+
+            self.rows_info.append({
+                "type": "char",
+                "pos": pos_text,
+                "name": name_text,
+                "block": s["block"],
+                "is_unknown": s["is_unknown"],
+                "data": s,
+            })
+
+        self.rows_info.append({
+            "type": "shop",
+            "pos": "Shop Tool",
+            "name": self.data["shop"]["status"],
+            "block": self.data["shop"]["block"],
+            "is_unknown": self.data["shop"]["is_unknown"],
+            "data": self.data["shop"],
+        })
+
+        self.rows_info.append({
+            "type": "pet",
+            "pos": I18n.t("Trợ thủ (Pet)", "Pet Companion"),
+            "name": self.data["pet"]["name"],
+            "block": self.data["pet"]["block"],
+            "is_unknown": self.data["pet"]["is_unknown"],
+            "data": self.data["pet"],
+        })
+
+        for idx, row in enumerate(self.rows_info):
+            f_row = tk.Frame(grp_items, bg="#f0f0f0")
+            f_row.pack(fill="x", pady=1)
+
+            lbl_pos = tk.Label(f_row, text=row["pos"], width=18, anchor="w", font=("Segoe UI", 9), bg="#f0f0f0")
+            lbl_pos.pack(side="left")
+
+            fg_color = "#b00000" if row["is_unknown"] else ("#666666" if "none" in row["name"] or "Không" in row["name"] or "No " in row["name"] else "black")
+            font_name = ("Segoe UI", 9, "bold") if row["is_unknown"] else ("Segoe UI", 9)
+            lbl_name = tk.Label(f_row, text=row["name"], width=24, anchor="w", font=font_name, fg=fg_color, bg="#f0f0f0")
+            lbl_name.pack(side="left")
+
+            lbl_bytes = tk.Label(f_row, text=str(row["block"]), width=30, anchor="w", font=("Consolas", 9), bg="#f0f0f0")
+            lbl_bytes.pack(side="left")
+
+            btn_det = tk.Button(
+                f_row,
+                text="Detail ->",
+                font=("Segoe UI", 8, "bold"),
+                width=11,
+                command=lambda i=idx: self.select_component(i)
+            )
+            btn_det.pack(side="left")
+            self.btn_item_details.append(btn_det)
+
+        # 3. Khung chi tiết (Detail)
+        self.grp_detail = tk.LabelFrame(
+            self,
+            text=I18n.t(" Thông tin chi tiết (Detail) ", " Component Details (Detail) "),
+            font=("Segoe UI", 9, "bold"),
+            bg="#f0f0f0",
+            padx=10,
+            pady=6
+        )
+        self.grp_detail.pack(fill="both", expand=True, padx=12, pady=4)
+
+        heading_row = tk.Frame(self.grp_detail, bg="#f0f0f0")
+        heading_row.pack(fill="x", pady=(0, 4))
+
+        self.lbl_detail_heading = tk.Label(heading_row, text="", font=("Segoe UI", 9, "bold"), anchor="w", bg="#f0f0f0")
+        self.lbl_detail_heading.pack(side="left", fill="x", expand=True)
+
+        self.lbl_detail_badge = tk.Label(heading_row, text="", font=("Segoe UI", 9, "bold"), bg="#f0f0f0")
+        self.lbl_detail_badge.pack(side="right")
+
+        self.container = tk.Frame(self.grp_detail, bg="#f0f0f0")
+        self.container.pack(fill="both", expand=True)
+
+        # Panel nhân vật (Full 4 slot codes)
+        self.pnl_char = tk.Frame(self.container, bg="#f0f0f0")
+        self.char_slot_entries = []
+        self.char_slot_labels = []
+        for i in range(4):
+            slot_prompt = I18n.t(
+                f"Mã combo khi ở Slot {i+1} ({'Chủ động' if i == 0 else 'Bị động'}):",
+                f"Combo code when placed in Slot {i+1} ({'Active' if i == 0 else 'Passive'}):"
+            )
+            lbl_slot_prompt = tk.Label(
+                self.pnl_char,
+                text=slot_prompt,
+                anchor="w",
+                font=("Segoe UI", 8),
+                bg="#f0f0f0"
+            )
+            lbl_slot_prompt.pack(fill="x", pady=(2, 0))
+            self.char_slot_labels.append(lbl_slot_prompt)
+
+            r_ent = tk.Frame(self.pnl_char, bg="#f0f0f0")
+            r_ent.pack(fill="x", pady=(0, 2))
+            ent = tk.Entry(r_ent, font=("Consolas", 9), bg="white", relief="solid", bd=1)
+            ent.pack(side="left", fill="x", expand=True, padx=(0, 6))
+            self.char_slot_entries.append(ent)
+
+            btn_cp = tk.Button(
+                r_ent,
+                text=I18n.t("Sao chép", "Copy"),
+                font=("Segoe UI", 8, "bold"),
+                width=9,
+                command=lambda e=ent: self._copy_to_clip(
+                    e.get(),
+                    I18n.t("Đã sao chép mã combo vào Clipboard!", "Combo code copied to Clipboard!")
+                )
+            )
+            btn_cp.pack(side="left")
+
+        btn_action_row = tk.Frame(self.pnl_char, bg="#f0f0f0")
+        btn_action_row.pack(fill="x", pady=(6, 2))
+
+        btn_copy_all = tk.Button(
+            btn_action_row,
+            text=I18n.t("Sao chép cả 4 mã", "Copy All 4 Codes"),
+            font=("Segoe UI", 9, "bold"),
+            command=self.on_copy_all_4
+        )
+        btn_copy_all.pack(side="left", padx=(0, 6))
+
+        btn_fill_part1 = tk.Button(
+            btn_action_row,
+            text=I18n.t("Nạp 4 mã vào Phần 1", "Load 4 Codes to Part 1"),
+            font=("Segoe UI", 9, "bold"),
+            command=self.on_fill_to_part1
+        )
+        btn_fill_part1.pack(side="left")
+
+        lbl_char_hint = tk.Label(
+            self.pnl_char,
+            text=I18n.t(
+                "(* Mẹo: Bấm 'Nạp 4 mã vào Phần 1' để tự động điền 4 mã vào Phần 1 rồi bấm 'Nhập' để lưu nhân vật mới mà không cần copy paste)",
+                "(* Tip: Click 'Load 4 Codes to Part 1' to automatically populate all 4 slot codes into Part 1, then click 'Import' to register the new character without manual copy-pasting)"
+            ),
+            font=("Segoe UI", 8, "italic"),
+            fg="#555555",
+            bg="#f0f0f0",
+            anchor="w"
+        )
+        lbl_char_hint.pack(fill="x", pady=(4, 0))
+
+        # Panel đơn (Shop Tool / Pet)
+        self.pnl_single = tk.Frame(self.container, bg="#f0f0f0")
+
+        self.lbl_single_prompt = tk.Label(self.pnl_single, text="", anchor="w", font=("Segoe UI", 9), bg="#f0f0f0")
+        self.lbl_single_prompt.pack(fill="x", pady=(4, 2))
+
+        r_single_ent = tk.Frame(self.pnl_single, bg="#f0f0f0")
+        r_single_ent.pack(fill="x", pady=2)
+
+        self.ent_single = tk.Entry(r_single_ent, font=("Consolas", 9, "bold"), bg="white", relief="solid", bd=1)
+        self.ent_single.pack(side="left", fill="x", expand=True, padx=(0, 6))
+
+        btn_cp_single = tk.Button(
+            r_single_ent,
+            text=I18n.t("Sao chép", "Copy"),
+            font=("Segoe UI", 9, "bold"),
+            width=10,
+            command=lambda: self._copy_to_clip(
+                self.ent_single.get(),
+                I18n.t("Đã sao chép mã độc lập vào Clipboard!", "Isolated standalone code copied to Clipboard!")
+            )
+        )
+        btn_cp_single.pack(side="left")
+
+        self.lbl_single_desc = tk.Label(
+            self.pnl_single,
+            text="",
+            justify="left",
+            anchor="w",
+            font=("Segoe UI", 9),
+            fg="#444444",
+            bg="#f0f0f0"
+        )
+        self.lbl_single_desc.pack(fill="x", pady=(10, 0))
+
+        # 4. Nút Đóng
+        btn_bottom = tk.Frame(self, bg="#f0f0f0")
+        btn_bottom.pack(fill="x", padx=12, pady=(4, 8))
+        btn_close = tk.Button(
+            btn_bottom,
+            text=I18n.t("Đóng", "Close"),
+            font=("Segoe UI", 9, "bold"),
+            width=12,
+            command=self.destroy
+        )
+        btn_close.pack(side="right")
+
+    def _copy_to_clip(self, val, msg=None):
+        if val:
+            self.clipboard_clear()
+            self.clipboard_append(val)
+            if msg:
+                messagebox.showinfo(I18n.t("Thông báo", "Notice"), msg)
+
+    def select_component(self, idx):
+        view_text = I18n.t(">> Xem <<", ">> View <<")
+        det_text = "Detail ->"
+        for i, b in enumerate(self.btn_item_details):
+            b.config(text=view_text if i == idx else det_text)
+
+        row = self.rows_info[idx]
+        if row["type"] == "char":
+            self.pnl_single.pack_forget()
+            self.pnl_char.pack(fill="both", expand=True)
+
+            heading = I18n.t(
+                f"Chi tiết {row['pos']}: {row['name']} (Khối byte: {row['block']})",
+                f"Details for {row['pos']}: {row['name']} (Byte block: {row['block']})"
+            )
+            self.lbl_detail_heading.config(text=heading)
+
+            if row["is_unknown"]:
+                self.lbl_detail_badge.config(text="UNKNOWN", fg="#b00000")
+            elif "none" in row["name"]:
+                self.lbl_detail_badge.config(text=I18n.t("SLOT TRỐNG", "EMPTY SLOT"), fg="#666666")
+            else:
+                self.lbl_detail_badge.config(text=I18n.t("ĐÃ NHẬN DIỆN", "IDENTIFIED"), fg="#008000")
+
+            codes = row["data"]["codes"]
+            for i, ent in enumerate(self.char_slot_entries):
+                ent.config(state="normal")
+                ent.delete(0, "end")
+                ent.insert(0, codes[i])
+                ent.config(state="readonly")
+        else:
+            self.pnl_char.pack_forget()
+            self.pnl_single.pack(fill="both", expand=True)
+
+            heading = I18n.t(
+                f"Chi tiết {row['pos']}: {row['name']} (Khối byte: {row['block']})",
+                f"Details for {row['pos']}: {row['name']} (Byte block: {row['block']})"
+            )
+            self.lbl_detail_heading.config(text=heading)
+
+            if row["is_unknown"]:
+                self.lbl_detail_badge.config(text="UNKNOWN", fg="#b00000")
+            else:
+                badge_text = "SHOP TOOL" if row["type"] == "shop" else I18n.t("TRỢ THỦ (PET)", "PET COMPANION")
+                self.lbl_detail_badge.config(text=badge_text, fg="#0055aa")
+
+            iso_code = row["data"]["isolated_code"]
+            self.ent_single.config(state="normal")
+            self.ent_single.delete(0, "end")
+            self.ent_single.insert(0, iso_code)
+            self.ent_single.config(state="readonly")
+
+            if row["type"] == "shop":
+                self.lbl_single_prompt.config(
+                    text=I18n.t(
+                        "Mã combo riêng biệt khi chỉ kích hoạt Shop Tool này:",
+                        "Isolated combo code with only this Shop Tool activated:"
+                    )
+                )
+                self.lbl_single_desc.config(
+                    text=I18n.t(
+                        "Mã trên là mã độc lập đại diện cho cấu hình Shop Tool được trích xuất từ combo nguồn.\n"
+                        f"Khối byte dữ liệu gốc của Shop: {row['block']}\n\n"
+                        "Bạn có thể sao chép mã này để chia sẻ hoặc lưu trữ độc lập.",
+                        "The code above is an isolated standalone code representing the Shop Tool extracted from the source combo.\n"
+                        f"Raw Shop byte block: {row['block']}\n\n"
+                        "You can copy this code to share or store independently."
+                    )
+                )
+            else:
+                self.lbl_single_prompt.config(
+                    text=I18n.t(
+                        "Mã combo riêng biệt khi chỉ trang bị Trợ thủ (Pet) này:",
+                        "Isolated combo code with only this Pet equipped:"
+                    )
+                )
+                self.lbl_single_desc.config(
+                    text=I18n.t(
+                        "Mã trên là mã độc lập đại diện cho cấu hình Trợ thủ (Pet) được trích xuất từ combo nguồn.\n"
+                        f"Khối byte dữ liệu gốc của Pet: {row['block']}\n\n"
+                        "Bạn có thể sao chép mã này để chia sẻ hoặc lưu trữ độc lập.",
+                        "The code above is an isolated standalone code representing the Pet companion extracted from the source combo.\n"
+                        f"Raw Pet byte block: {row['block']}\n\n"
+                        "You can copy this code to share or store independently."
+                    )
+                )
+
+    def on_copy_all_4(self):
+        codes = [ent.get() for ent in self.char_slot_entries]
+        text = "\n".join([f"Slot {i+1}: {c}" for i, c in enumerate(codes)])
+        self._copy_to_clip(
+            text,
+            I18n.t("Đã sao chép cả 4 mã vào Clipboard!", "All 4 codes copied to Clipboard!")
+        )
+
+    def on_fill_to_part1(self):
+        codes = [ent.get() for ent in self.char_slot_entries]
+        for i, c in enumerate(codes):
+            self.master.slot_entries[i].delete(0, "end")
+            self.master.slot_entries[i].insert(0, c)
+        messagebox.showinfo(
+            I18n.t("Đã nạp thành công", "Loaded Successfully"),
+            I18n.t(
+                "Đã nạp 4 mã vào Slot 1, 2, 3, 4 ở Phần 1 giao diện chính!\nBạn chỉ cần bấm nút 'Nhập' tại Phần 1 để lưu nhân vật này.",
+                "Loaded 4 codes into Slots 1, 2, 3, 4 of Part 1 in the main window!\nYou can now click 'Import' in Part 1 to save this character."
+            )
+        )
+        self.destroy()
 
 
 if __name__ == "__main__":

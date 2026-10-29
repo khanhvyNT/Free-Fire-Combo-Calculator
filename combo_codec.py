@@ -92,6 +92,11 @@ PET_NAMES = {
     1: "Cánh cụt",
     2: "Ottero",
 }
+PET_NAMES_EN = {
+    0: "No Pet",
+    1: "Mr. Waggor (Penguin)",
+    2: "Ottero",
+}
 
 
 def build_plain(slots, shop=False, pet=0):
@@ -169,6 +174,113 @@ def decode(code):
     pet = {tuple(v): k for k, v in PET_SEG.items()}.get(tuple(pet_seg),
                                                         "UNKNOWN%s" % pet_seg)
     return {"slots": slots, "shop": shop, "pet": pet, "length": len(p)}
+
+
+def encode_raw_blocks(slots_b, shop_b, pet_b):
+    p = [0]
+    for sb in slots_b:
+        p.append(SEP)
+        p += sb
+    p.append(SEP)
+    p += shop_b
+    p.append(SEP)
+    p += FIXED_SEG
+    p.append(SEP)
+    p += pet_b
+    return "#FF#" + base64.b64encode(bytes(xor_key(p))).decode()
+
+
+def analyze_combo(code, lang="vi"):
+    p = plain_of(code)
+    if p[0] != 0 or p[1] != SEP:
+        raise ValueError("Header sai - mã không hợp lệ")
+    segs, cur = [], []
+    for v in p[2:]:
+        if v == SEP:
+            segs.append(cur)
+            cur = []
+        else:
+            cur.append(v)
+    segs.append(cur)
+    if len(segs) != 7:
+        raise ValueError("Số đoạn byte không đúng (cần 7 đoạn, nhận %d)" % len(segs))
+
+    rev = {}
+    canonical = ("Tatsuya", "Alok (Pre)", "BHXK", "Phun lửa", "Chidori", "Alok", "Kelly", "Xayne", "Rin", "Ignis", "Dasha")
+    for k, v in BLOCKS.items():
+        tv = tuple(v)
+        if tv not in rev or k in canonical:
+            rev[tv] = k
+
+    slots_info = []
+    for i, seg in enumerate(segs[:4]):
+        if seg == NONE_SEG:
+            name = "none"
+            is_unknown = False
+        else:
+            tv = tuple(seg)
+            if tv in rev:
+                name = rev[tv]
+                is_unknown = False
+            else:
+                name = "Unknown"
+                is_unknown = True
+
+        slot_codes = [
+            encode_raw_blocks([seg, NONE_SEG, NONE_SEG, NONE_SEG], NONE_SEG, [1]),
+            encode_raw_blocks([NONE_SEG, seg, NONE_SEG, NONE_SEG], NONE_SEG, [1]),
+            encode_raw_blocks([NONE_SEG, NONE_SEG, seg, NONE_SEG], NONE_SEG, [1]),
+            encode_raw_blocks([NONE_SEG, NONE_SEG, NONE_SEG, seg], NONE_SEG, [1]),
+        ]
+        slots_info.append({
+            "slot": i + 1,
+            "name": name,
+            "block": seg,
+            "is_unknown": is_unknown,
+            "codes": slot_codes,
+        })
+
+    shop_seg = segs[4]
+    if shop_seg == NONE_SEG:
+        shop_status = "No Shop Tool" if lang == "en" else "Không Shop"
+        shop_unknown = False
+    elif shop_seg == SHOP_SEG:
+        shop_status = "With Shop Tool" if lang == "en" else "Có Shop Tool"
+        shop_unknown = False
+    else:
+        shop_status = "Unknown"
+        shop_unknown = True
+    shop_isolated = encode_raw_blocks([NONE_SEG, NONE_SEG, NONE_SEG, NONE_SEG], shop_seg, [1])
+
+    pet_seg = segs[6]
+    pet_rev = {tuple(v): k for k, v in PET_SEG.items()}
+    tv_pet = tuple(pet_seg)
+    if tv_pet in pet_rev:
+        pet_id = pet_rev[tv_pet]
+        pet_name = PET_NAMES_EN.get(pet_id, "No Pet") if lang == "en" else PET_NAMES.get(pet_id, "Không Pet")
+        pet_unknown = False
+    else:
+        pet_name = "Unknown"
+        pet_unknown = True
+    pet_isolated = encode_raw_blocks([NONE_SEG, NONE_SEG, NONE_SEG, NONE_SEG], NONE_SEG, pet_seg)
+
+    return {
+        "code": code,
+        "length": len(p),
+        "slots": slots_info,
+        "shop": {
+            "status": shop_status,
+            "block": shop_seg,
+            "is_unknown": shop_unknown,
+            "isolated_code": shop_isolated,
+        },
+        "pet": {
+            "name": pet_name,
+            "block": pet_seg,
+            "is_unknown": pet_unknown,
+            "isolated_code": pet_isolated,
+        },
+    }
 
 
 # ---------------------------------------------------------------- ma that de kiem chung
