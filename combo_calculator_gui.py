@@ -86,28 +86,30 @@ class ComboCalculatorApp(tk.Tk):
         )
         self.grp1.pack(fill="x", padx=12, pady=4)
 
-        self.slot_entries = []
-        self.slot_labels = []
-        for i in range(4):
-            row = tk.Frame(self.grp1, bg="#f0f0f0")
-            row.pack(fill="x", pady=2)
-            lbl = tk.Label(row, text=f"Slot {i+1}:", width=7, anchor="w", bg="#f0f0f0", font=("Segoe UI", 9))
-            lbl.pack(side="left")
-            self.slot_labels.append(lbl)
-            ent = tk.Entry(row, font=("Segoe UI", 9))
-            ent.pack(side="left", fill="x", expand=True)
-            self.slot_entries.append(ent)
+        row1 = tk.Frame(self.grp1, bg="#f0f0f0")
+        row1.pack(fill="x", pady=2)
+        self.lbl_slot1 = tk.Label(
+            row1,
+            text="Slot 1 Code Combo:",
+            width=18,
+            anchor="w",
+            bg="#f0f0f0",
+            font=("Segoe UI", 9, "bold")
+        )
+        self.lbl_slot1.pack(side="left")
+        self.ent_slot1 = tk.Entry(row1, font=("Consolas", 9))
+        self.ent_slot1.pack(side="left", fill="x", expand=True)
 
         btn_row1 = tk.Frame(self.grp1, bg="#f0f0f0")
         btn_row1.pack(fill="x", pady=(5, 0))
         self.btn_import = tk.Button(
             btn_row1,
-            text="Nhập",
+            text="Đăng ký nhân vật",
             font=("Segoe UI", 9, "bold"),
-            width=12,
+            width=16,
             command=self.on_import_character
         )
-        self.btn_import.pack(side="left", padx=(50, 6))
+        self.btn_import.pack(side="left", padx=(18, 6))
 
         self.btn_clear = tk.Button(
             btn_row1,
@@ -120,7 +122,7 @@ class ComboCalculatorApp(tk.Tk):
 
         self.btn_guide = tk.Button(
             btn_row1,
-            text="Cách lấy mã slot",
+            text="Hướng dẫn",
             font=("Segoe UI", 9),
             command=self.on_show_guide
         )
@@ -128,7 +130,7 @@ class ComboCalculatorApp(tk.Tk):
 
         self.lbl_guide_hint = tk.Label(
             btn_row1,
-            text="(* Bấm 'Cách lấy mã slot' để xem ảnh hướng dẫn)",
+            text="(* Bấm 'Hướng dẫn' để xem các bước lấy mã từ game)",
             font=("Segoe UI", 8, "italic"),
             fg="#555555",
             bg="#f0f0f0"
@@ -304,13 +306,14 @@ class ComboCalculatorApp(tk.Tk):
 
         # Phần 1
         self.grp1.config(text=I18n.t(" 1. Nhập dữ liệu nhân vật ", " 1. Character Data Input "))
-        self.btn_import.config(text=I18n.t("Nhập", "Import"))
+        self.lbl_slot1.config(text=I18n.t("Slot 1 Code Combo:", "Slot 1 Code Combo:"))
+        self.btn_import.config(text=I18n.t("Đăng ký nhân vật", "Register Character"))
         self.btn_clear.config(text=I18n.t("Xóa trắng", "Clear"))
-        self.btn_guide.config(text=I18n.t("Cách lấy mã slot", "Slot Guide"))
+        self.btn_guide.config(text=I18n.t("Hướng dẫn", "Guide"))
         self.lbl_guide_hint.config(
             text=I18n.t(
-                "(* Bấm 'Cách lấy mã slot' để xem ảnh hướng dẫn)",
-                "(* Click 'Slot Guide' to view tutorial on extracting codes from game)"
+                "(* Bấm 'Hướng dẫn' để xem các bước lấy mã từ game)",
+                "(* Click 'Guide' to see instructions on getting code from game)"
             )
         )
 
@@ -378,153 +381,187 @@ class ComboCalculatorApp(tk.Tk):
     # Logic Phần 1: Nhập dữ liệu nhân vật
     # -----------------------------------------------------------------
     def on_clear_inputs(self):
-        for ent in self.slot_entries:
-            ent.delete(0, "end")
+        self.ent_slot1.delete(0, "end")
 
     def on_show_guide(self):
         guide_win = tk.Toplevel(self)
-        guide_win.title(I18n.t("Hướng dẫn: Cách lấy mã slot", "Guide: How to Extract Slot Codes"))
-        guide_win.geometry("700x745")
-        guide_win.minsize(680, 700)
+        guide_win.title(I18n.t("Hướng dẫn: Lấy mã nhân vật để đăng ký", "Guide: Extract Character Code for Registration"))
+        guide_win.geometry("680x560")
+        guide_win.minsize(640, 520)
         guide_win.configure(bg="#f0f0f0")
         guide_win.transient(self)
         guide_win.grab_set()
 
-        guide_text = I18n.t(
-            "Để lấy mã của các slot để nhập một nhân vật mới vào hộp chọn trong phần ghép combo "
-            "thì hãy vào game rồi chọn 1 nhân vật duy nhất cần nhập vào rồi làm theo hình ảnh để "
-            "lấy mã các slot của nhân vật mong muốn.",
-            "To obtain the slot codes for adding a new character into the selection boxes, "
-            "enter the game, equip only that single character, and follow the screenshot instructions "
-            "to copy the codes for each slot."
+        guide_text_vi = (
+            "Hướng dẫn: Lấy mã nhân vật để đăng ký\n\n"
+            "Mã nhân vật là gì? Đó là một dòng chữ bắt đầu bằng #FF#. Công cụ dùng dòng chữ này để nhận ra bạn đang chọn nhân vật nào. Bạn không cần hiểu nó nghĩa là gì, chỉ cần sao chép đúng.\n\n"
+            "Lưu ý: Mỗi nhân vật cần một mã riêng. Muốn đăng ký 5 nhân vật thì làm 5 lần.\n\n"
+            "Các bước\n\n"
+            "Bước 1. Đưa game về trạng thái trống.\n"
+            "Sao chép dòng mã combo dưới đây và dán nó vào mục combo game:\n"
+            "#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=\n"
+            "Combo này sẽ xóa sạch combo hiện tại: 4 ô trống, không pet, không công cụ hỗ trợ (CCHT).\n\n"
+            "Bước 2. Chọn nhân vật cần đăng ký.\n"
+            "Chọn đúng 1 nhân vật vào ô đầu tiên. Ba ô còn lại để trống. Không bật Pet hay CCHT.\n\n"
+            "Bước 3. Lấy mã.\n"
+            "Bấm [Sao chép mã] để copy mã cho việc đăng ký.\n\n"
+            "Bước 4. Đăng ký.\n"
+            "Quay lại công cụ này, dán mã vào ô nhập của Phần 1 và bấm Đăng ký."
         )
 
-        lbl_text = tk.Label(
+        guide_text_en = (
+            "Guide: Extract Character Code for Registration\n\n"
+            "What is a character code? It is a text string starting with #FF#. The tool uses this code to identify which character you selected. You do not need to understand what it means, simply copy it accurately.\n\n"
+            "Note: Each character requires a unique code. If you want to register 5 characters, repeat this 5 times.\n\n"
+            "Steps\n\n"
+            "Step 1. Reset game to empty state.\n"
+            "Copy the combo code below and paste it into the in-game combo section:\n"
+            "#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=\n"
+            "This combo clears your active combo: 4 empty slots, no pet, no loadout/shop tool.\n\n"
+            "Step 2. Select the character to register.\n"
+            "Equip exactly 1 character in the first slot. Leave the other 3 slots empty. Do not equip Pet or loadout tools.\n\n"
+            "Step 3. Copy code.\n"
+            "Click [Copy Code] in-game to copy the code for registration.\n\n"
+            "Step 4. Register.\n"
+            "Return to this tool, paste the code into the input field in Part 1 and click Register Character."
+        )
+
+        txt_guide = ScrolledText(
             guide_win,
-            text=guide_text,
-            font=("Segoe UI", 9),
-            wraplength=660,
-            justify="left",
-            bg="#f0f0f0",
-            padx=12,
+            font=("Segoe UI", 10),
+            bg="white",
+            relief="solid",
+            bd=1,
+            padx=10,
             pady=10
         )
-        lbl_text.pack(fill="x")
+        txt_guide.insert("1.0", I18n.t(guide_text_vi, guide_text_en))
+        txt_guide.config(state="disabled")
+        txt_guide.pack(fill="both", expand=True, padx=12, pady=10)
 
-        img_path = os.path.join(os.path.dirname(__file__), "huong_dan_slot.png")
-        if os.path.exists(img_path):
+        btn_row = tk.Frame(guide_win, bg="#f0f0f0")
+        btn_row.pack(fill="x", padx=12, pady=(0, 10))
+
+        def copy_reset():
+            self.clipboard_clear()
+            self.clipboard_append("#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=")
+            messagebox.showinfo(
+                I18n.t("Đã sao chép", "Copied"),
+                I18n.t(
+                    "Đã sao chép mã combo xóa trống (#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=) vào Clipboard!\nDán mã này vào game để xóa sạch combo trước khi chọn nhân vật.",
+                    "Reset combo code (#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=) copied to Clipboard!\nPaste it in game to clear active combo before selecting character."
+                )
+            )
+
+        btn_copy_reset = tk.Button(
+            btn_row,
+            text=I18n.t("Sao chép mã xóa trống (Bước 1)", "Copy Reset Code (Step 1)"),
+            font=("Segoe UI", 9, "bold"),
+            command=copy_reset
+        )
+        btn_copy_reset.pack(side="left")
+
+        def show_screenshot():
+            img_path = os.path.join(os.path.dirname(__file__), "huong_dan_slot.png")
+            if not os.path.exists(img_path):
+                messagebox.showerror(I18n.t("Lỗi", "Error"), f"Image not found: {img_path}")
+                return
+            img_win = tk.Toplevel(guide_win)
+            img_win.title(I18n.t("Ảnh minh họa game", "In-Game Screenshot"))
+            img_win.geometry("700x720")
+            img_win.configure(bg="black")
             try:
                 self._guide_photo = tk.PhotoImage(file=img_path)
-                lbl_img = tk.Label(guide_win, image=self._guide_photo, bg="black", relief="solid", bd=1)
-                lbl_img.pack(padx=12, pady=5)
+                lbl_img = tk.Label(img_win, image=self._guide_photo, bg="black")
+                lbl_img.pack(fill="both", expand=True)
             except Exception as e:
-                lbl_err = tk.Label(guide_win, text=f"Error loading image: {e}", fg="red", bg="#f0f0f0")
-                lbl_err.pack(pady=10)
-        else:
-            lbl_err = tk.Label(guide_win, text=f"Image file not found: {img_path}", fg="red", bg="#f0f0f0")
-            lbl_err.pack(pady=10)
+                messagebox.showerror("Error", str(e))
+
+        btn_view_img = tk.Button(
+            btn_row,
+            text=I18n.t("Xem ảnh minh họa", "View Screenshot"),
+            font=("Segoe UI", 9),
+            command=show_screenshot
+        )
+        btn_view_img.pack(side="left", padx=8)
 
         btn_close = tk.Button(
-            guide_win,
+            btn_row,
             text=I18n.t("Đóng", "Close"),
             font=("Segoe UI", 9, "bold"),
             width=12,
             command=guide_win.destroy
         )
-        btn_close.pack(pady=10)
+        btn_close.pack(side="right")
 
     def on_import_character(self):
-        filled_slots = []
-        extracted_blocks = []
-        detected_name = ""
-
-        for i, ent in enumerate(self.slot_entries):
-            text = ent.get().strip()
-            if not text:
-                continue
-
-            # Thử đoán tên nhân vật
-            m_name = re.match(r"^([A-Za-z0-9_\s\(\)\u00C0-\u1EF9]+?)[\s\:\;\(]+#FF#", text)
-            if m_name and not detected_name:
-                cand = re.sub(r"\(\d+\)", "", m_name.group(1)).strip()
-                if cand:
-                    detected_name = cand
-
-            m_code = re.search(r"#FF#([A-Za-z0-9+/=]+)", text)
-            code = ("#FF#" + m_code.group(1)) if m_code else text
-
-            try:
-                p = codec.plain_of(code)
-                if len(p) < 2 or p[0] != 0 or p[1] != codec.SEP:
-                    messagebox.showerror(
-                        I18n.t("Lỗi", "Error"),
-                        I18n.t(f"Mã ở Slot {i+1} có header không đúng!", f"Code in Slot {i+1} has an invalid header!")
-                    )
-                    return
-
-                # Tách segments
-                segs = []
-                cur = []
-                for v in p[2:]:
-                    if v == codec.SEP:
-                        segs.append(cur)
-                        cur = []
-                    else:
-                        cur.append(v)
-                    segs.append(cur)
-
-                if len(segs) < 4:
-                    messagebox.showerror(
-                        I18n.t("Lỗi", "Error"),
-                        I18n.t(f"Mã ở Slot {i+1} không đủ 4 slot!", f"Code in Slot {i+1} does not have all 4 slots!")
-                    )
-                    return
-
-                target_seg = segs[i]
-                if target_seg == codec.NONE_SEG:
-                    messagebox.showwarning(
-                        I18n.t("Thông báo", "Notice"),
-                        I18n.t(f"Mã ở Slot {i+1} là slot trống (none)!", f"Slot {i+1} code is an empty slot (none)!")
-                    )
-                    return
-
-                filled_slots.append(i + 1)
-                extracted_blocks.append(target_seg)
-            except Exception as e:
-                messagebox.showerror(
-                    I18n.t("Lỗi giải mã", "Decoding Error"),
-                    I18n.t(f"Không thể giải mã Slot {i+1}: {e}", f"Cannot decode Slot {i+1}: {e}")
-                )
-                return
-
-        if not filled_slots:
+        text = self.ent_slot1.get().strip()
+        if not text:
             messagebox.showinfo(
                 I18n.t("Chưa có dữ liệu", "No Input Data"),
-                I18n.t("Vui lòng nhập ít nhất 1 mã (#FF#...) vào các ô Slot 1..4!",
-                       "Please enter at least one code (#FF#...) into Slots 1..4!")
+                I18n.t("Vui lòng dán mã combo (#FF#...) của nhân vật vào ô Slot 1 Code Combo!",
+                       "Please paste character combo code (#FF#...) into Slot 1 Code Combo!")
             )
             return
 
-        # Kiểm tra tính đồng nhất giữa các slot
-        first_b = extracted_blocks[0]
-        for j in range(1, len(extracted_blocks)):
-            if extracted_blocks[j] != first_b:
-                messagebox.showwarning(
-                    I18n.t("Không đồng nhất", "Inconsistency Warning"),
-                    I18n.t(
-                        f"Cảnh báo: Khối trích xuất ở Slot {filled_slots[j]} khác Slot {filled_slots[0]}!\n"
-                        f"Slot {filled_slots[0]}: {first_b}\n"
-                        f"Slot {filled_slots[j]}: {extracted_blocks[j]}",
-                        f"Warning: Extracted byte block in Slot {filled_slots[j]} differs from Slot {filled_slots[0]}!\n"
-                        f"Slot {filled_slots[0]}: {first_b}\n"
-                        f"Slot {filled_slots[j]}: {extracted_blocks[j]}"
-                    )
+        detected_name = ""
+        m_name = re.match(r"^([A-Za-z0-9_\s\(\)\u00C0-\u1EF9]+?)[\s\:\;\(]+#FF#", text)
+        if m_name:
+            cand = re.sub(r"\(\d+\)", "", m_name.group(1)).strip()
+            if cand:
+                detected_name = cand
+
+        m_code = re.search(r"#FF#([A-Za-z0-9+/=]+)", text)
+        code = ("#FF#" + m_code.group(1)) if m_code else text
+
+        try:
+            p = codec.plain_of(code)
+            if len(p) < 2 or p[0] != 0 or p[1] != codec.SEP:
+                messagebox.showerror(
+                    I18n.t("Lỗi", "Error"),
+                    I18n.t("Mã combo có header không đúng định dạng Free Fire!", "Invalid combo code header format!")
                 )
                 return
 
+            segs = []
+            cur = []
+            for v in p[2:]:
+                if v == codec.SEP:
+                    segs.append(cur)
+                    cur = []
+                else:
+                    cur.append(v)
+            segs.append(cur)
+
+            if len(segs) < 4:
+                messagebox.showerror(
+                    I18n.t("Lỗi", "Error"),
+                    I18n.t("Mã combo không đủ các đoạn dữ liệu nhân vật!", "Combo code lacks character data segments!")
+                )
+                return
+
+            # Lấy slot 1 trước, nếu slot 1 trống thì tìm slot không trống đầu tiên
+            if segs[0] != codec.NONE_SEG:
+                target_seg = segs[0]
+            else:
+                target_seg = next((s for s in segs[1:4] if s != codec.NONE_SEG), None)
+
+            if target_seg is None:
+                messagebox.showwarning(
+                    I18n.t("Thông báo", "Notice"),
+                    I18n.t("Mã combo nhập vào là combo trống (cả 4 slot đều trống, không có nhân vật nào)!",
+                           "The entered combo code is empty (all 4 slots are empty, no character found)!")
+                )
+                return
+        except Exception as e:
+            messagebox.showerror(
+                I18n.t("Lỗi giải mã", "Decoding Error"),
+                I18n.t(f"Không thể giải mã combo: {e}", f"Cannot decode combo: {e}")
+            )
+            return
+
         def process_done():
-            # Kiểm tra xem khối đã có chưa
-            block_tuple = tuple(first_b)
+            block_tuple = tuple(target_seg)
             canonical = ("Tatsuya", "Alok (Pre)", "BHXK", "Phun lửa", "Chidori", "Alok", "Kelly", "Xayne", "Rin", "Ignis", "Dasha")
             existing = None
             for c in canonical:
@@ -539,8 +576,8 @@ class ComboCalculatorApp(tk.Tk):
 
             if existing:
                 msg = I18n.t(
-                    f"==> NHẬP DỮ LIỆU: Nhân vật đã có sẵn!\n- Tên: {existing}\n- Khối: {first_b}\n- Khớp qua các slot: {filled_slots}",
-                    f"==> DATA IMPORT: Character already exists!\n- Name: {existing}\n- Block: {first_b}\n- Matched slots: {filled_slots}"
+                    f"==> ĐĂNG KÝ NHÂN VẬT: Nhân vật đã tồn tại!\n- Tên: {existing}\n- Khối: {target_seg}\n- Đã tự động chọn vào Choicebox 1.",
+                    f"==> REGISTER CHARACTER: Character already exists!\n- Name: {existing}\n- Block: {target_seg}\n- Automatically selected in Choicebox 1."
                 )
                 self.append_log(msg)
                 self.txt_result.delete(0, "end")
@@ -551,51 +588,51 @@ class ComboCalculatorApp(tk.Tk):
                 )
                 messagebox.showinfo(
                     I18n.t("Đã nhận diện", "Identified"),
-                    I18n.t(f"Nhân vật đã có sẵn: {existing} (Khối: {first_b})",
-                           f"Character already exists: {existing} (Block: {first_b})")
+                    I18n.t(f"Nhân vật này đã có sẵn trong cơ sở dữ liệu:\n- Tên: {existing}\n- Khối byte: {target_seg}",
+                           f"This character already exists in database:\n- Name: {existing}\n- Byte block: {target_seg}")
                 )
             else:
-                # Nhân vật mới
                 prompt_text = I18n.t(
-                    f"Phát hiện nhân vật mới!\nKhối byte: {first_b}\nNhập tên nhân vật:",
-                    f"New character detected!\nByte block: {first_b}\nEnter character name:"
+                    f"Phát hiện nhân vật mới!\nKhối byte: {target_seg}\nNhập tên nhân vật:",
+                    f"New character detected!\nByte block: {target_seg}\nEnter character name:"
                 )
                 new_name = simpledialog.askstring(
-                    I18n.t("Nhân vật mới", "New Character"),
+                    I18n.t("Đăng ký nhân vật mới", "Register New Character"),
                     prompt_text,
                     initialvalue=detected_name,
                     parent=self
                 )
                 if not new_name or not new_name.strip():
                     self.append_log(
-                        I18n.t(f"Đã hủy thêm nhân vật mới (khối: {first_b}).",
-                               f"Cancelled adding new character (block: {first_b}).")
+                        I18n.t(f"Đã hủy đăng ký nhân vật mới (khối: {target_seg}).",
+                               f"Cancelled registering new character (block: {target_seg}).")
                     )
                     self.lbl_progress_text.config(
-                        text=I18n.t("Đã hủy lưu nhân vật mới.", "Cancelled saving new character.")
+                        text=I18n.t("Đã hủy đăng ký.", "Registration cancelled.")
                     )
                     return
 
                 new_name = new_name.strip()
-                codec.save_character(new_name, first_b)
+                codec.save_character(new_name, target_seg)
                 self._refresh_choiceboxes(new_name)
                 self.txt_result.delete(0, "end")
                 self.txt_result.insert(0, new_name)
                 msg = I18n.t(
-                    f"==> THÀNH CÔNG: Đã lưu nhân vật mới!\n- Tên: {new_name}\n- Khối byte: {first_b}\n- Cập nhật Choicebox.",
-                    f"==> SUCCESS: Saved new character!\n- Name: {new_name}\n- Byte block: {first_b}\n- Choiceboxes updated."
+                    f"==> THÀNH CÔNG: Đã đăng ký nhân vật mới!\n- Tên: {new_name}\n- Khối byte: {target_seg}\n- Cập nhật Choicebox.",
+                    f"==> SUCCESS: Registered new character!\n- Name: {new_name}\n- Byte block: {target_seg}\n- Choiceboxes updated."
                 )
                 self.append_log(msg)
                 self.lbl_progress_text.config(
-                    text=I18n.t(f"Đã lưu thành công: {new_name}", f"Successfully saved: {new_name}")
+                    text=I18n.t(f"Đã đăng ký thành công: {new_name}", f"Successfully registered: {new_name}")
                 )
                 messagebox.showinfo(
                     I18n.t("Thành công", "Success"),
-                    I18n.t(f"Đã lưu thành công nhân vật '{new_name}'!", f"Successfully saved character '{new_name}'!")
+                    I18n.t(f"Đã đăng ký thành công nhân vật '{new_name}' vào hệ thống!",
+                           f"Successfully registered character '{new_name}' into the system!")
                 )
 
         self.start_progress(
-            I18n.t("Đang phân tích dữ liệu nhân vật...", "Analyzing character data..."),
+            I18n.t("Đang phân tích và đăng ký nhân vật...", "Analyzing and registering character..."),
             process_done
         )
 
@@ -988,7 +1025,7 @@ class ComboAnalysisDialog(tk.Toplevel):
 
         btn_fill_part1 = tk.Button(
             btn_action_row,
-            text=I18n.t("Nạp 4 mã vào Phần 1", "Load 4 Codes to Part 1"),
+            text=I18n.t("Nạp mã vào Phần 1", "Load Code to Part 1"),
             font=("Segoe UI", 9, "bold"),
             command=self.on_fill_to_part1
         )
@@ -997,8 +1034,8 @@ class ComboAnalysisDialog(tk.Toplevel):
         lbl_char_hint = tk.Label(
             self.pnl_char,
             text=I18n.t(
-                "(* Mẹo: Bấm 'Nạp 4 mã vào Phần 1' để tự động điền 4 mã vào Phần 1 rồi bấm 'Nhập' để lưu nhân vật mới mà không cần copy paste)",
-                "(* Tip: Click 'Load 4 Codes to Part 1' to automatically populate all 4 slot codes into Part 1, then click 'Import' to register the new character without manual copy-pasting)"
+                "(* Mẹo: Bấm 'Nạp mã vào Phần 1' để tự động điền mã Slot 1 của nhân vật này vào Phần 1 rồi bấm 'Đăng ký nhân vật' mà không cần copy paste)",
+                "(* Tip: Click 'Load Code to Part 1' to autofill the Slot 1 code into Part 1, then click 'Register Character' without manual copy-pasting)"
             ),
             font=("Segoe UI", 8, "italic"),
             fg="#555555",
@@ -1157,15 +1194,15 @@ class ComboAnalysisDialog(tk.Toplevel):
         )
 
     def on_fill_to_part1(self):
-        codes = [ent.get() for ent in self.char_slot_entries]
-        for i, c in enumerate(codes):
-            self.master.slot_entries[i].delete(0, "end")
-            self.master.slot_entries[i].insert(0, c)
+        code = self.char_slot_entries[0].get()
+        self.master.ent_slot1.delete(0, "end")
+        self.master.ent_slot1.insert(0, code)
+        btn_name = I18n.t("Đăng ký nhân vật", "Register Character")
         messagebox.showinfo(
             I18n.t("Đã nạp thành công", "Loaded Successfully"),
             I18n.t(
-                "Đã nạp 4 mã vào Slot 1, 2, 3, 4 ở Phần 1 giao diện chính!\nBạn chỉ cần bấm nút 'Nhập' tại Phần 1 để lưu nhân vật này.",
-                "Loaded 4 codes into Slots 1, 2, 3, 4 of Part 1 in the main window!\nYou can now click 'Import' in Part 1 to save this character."
+                f"Đã nạp mã Slot 1 vào ô 'Slot 1 Code Combo' ở Phần 1 giao diện chính!\nBạn chỉ cần bấm nút '{btn_name}' tại Phần 1 để lưu nhân vật này.",
+                f"Loaded Slot 1 code into 'Slot 1 Code Combo' in Part 1!\nSimply click '{btn_name}' in Part 1 to register this character."
             )
         )
         self.destroy()

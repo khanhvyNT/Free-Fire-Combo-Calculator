@@ -27,12 +27,10 @@ Bạn có thể chạy bằng 1 trong 2 cách:
 - **English:** Chuẩn hóa thuật ngữ quốc tế chính xác của game Free Fire (Slot 1 Active, Slots 2-4 Passive, Mr. Waggor, Ottero, Shop Tool,...).
 
 ### 1. Nhập dữ liệu nhân vật
-Dùng để thêm nhân vật mới vào phần mềm:
-- Vào game, tháo hết kỹ năng, chỉ để duy nhất 1 nhân vật cần lấy mã.
-- Lần lượt đặt nhân vật đó vào Slot 1, Slot 2, Slot 3, Slot 4 rồi bấm nút sao chép mã trong game.
-- Dán mã tương ứng vào 4 ô `Slot 1` đến `Slot 4` trong phần mềm rồi bấm **Nhập**.
-- Phần mềm sẽ tự trích xuất khối byte, kiểm tra tính đồng nhất giữa các slot và yêu cầu đặt tên nếu là nhân vật mới. Nhân vật sau khi lưu sẽ tự động xuất hiện ở các hộp chọn bên dưới.
-- Bấm nút **Cách lấy mã slot** để xem ảnh minh họa chi tiết vị trí lấy mã trong game.
+Dùng để đăng ký nhân vật mới vào phần mềm với chỉ 1 ô nhập duy nhất:
+- **Slot 1 Code Combo:** Dán mã combo của nhân vật cần đăng ký (chỉ cần lấy mã khi đặt nhân vật ở Slot 1, thuật toán sẽ tự động tính toán ra cả 4 slot).
+- Nút **Đăng ký nhân vật:** Tự động giải mã, trích xuất khối byte, kiểm tra nhận diện và lưu vào danh sách nhân vật (`characters.json`).
+- Nút **Hướng dẫn:** Mở hộp thoại hướng dẫn chi tiết từng bước đưa game về trạng thái trống (`#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=`), chọn nhân vật và lấy mã đăng ký (có nút sao chép nhanh mã xóa trống và nút xem ảnh minh họa).
 
 ### 2. Ghép thành combo
 - Chọn kỹ năng cho 4 slot theo ý muốn (Slot 1 là kỹ năng chủ động, Slot 2-4 là bị động).
@@ -47,7 +45,7 @@ Dùng để thêm nhân vật mới vào phần mềm:
   - Mở cửa sổ phân tích bóc tách cả 6 thành phần: Slot 1, 2, 3, 4, Shop Tool và Trợ thủ (Pet).
   - Tự động nhận diện tên nhân vật theo khối byte; nếu gặp nhân vật/vật phẩm lạ chưa có trong hệ thống sẽ tự động gắn nhãn **Unknown**.
   - Mỗi thành phần có nút **Detail** riêng:
-    - **Nhân vật (Slot 1-4):** Tự động sinh đầy đủ **full 4 mã combo ở cả 4 slot** (Slot 1 chủ động, Slot 2-4 bị động), kèm nút sao chép từng slot, sao chép cả 4 slot và nút **"Nạp 4 mã vào Phần 1"** (tự điền 4 mã vào 4 ô ở Phần 1 để bấm "Nhập" lưu nhân vật mới ngay lập tức mà không cần copy paste thủ công).
+    - **Nhân vật (Slot 1-4):** Tự động sinh đầy đủ **full 4 mã combo ở cả 4 slot** (Slot 1 chủ động, Slot 2-4 bị động), kèm nút sao chép từng slot, sao chép cả 4 slot và nút **"Nạp mã vào Phần 1"** (tự điền mã Slot 1 vào ô nhập ở Phần 1 để bấm "Đăng ký nhân vật" lưu ngay lập tức mà không cần copy paste thủ công).
     - **Shop Tool & Trợ thủ:** Hiển thị mã combo riêng biệt (độc lập) của riêng vật phẩm đó khi chỉ trang bị duy nhất thành phần này.
 - Khung nhật ký bên dưới ghi lại chi tiết các byte, độ dài và phân loại mã.
 

@@ -72,8 +72,8 @@ namespace FFComboCalculator
 
         // Phần 1: Nhập dữ liệu nhân vật
         private GroupBox grpPart1;
-        private Label lblSlot1, lblSlot2, lblSlot3, lblSlot4;
-        private TextBox txtSlot1, txtSlot2, txtSlot3, txtSlot4;
+        private Label lblSlot1;
+        private TextBox txtSlot1;
         private Button btnImport, btnClearInputs, btnGuide;
         private Label lblGuideHint;
 
@@ -154,69 +154,52 @@ namespace FFComboCalculator
             grpPart1.Text = "1. Nhập dữ liệu nhân vật";
             grpPart1.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             grpPart1.Location = new Point(12, 34);
-            grpPart1.Size = new Size(780, 160);
+            grpPart1.Size = new Size(780, 92);
             grpPart1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             Font normalFont = new Font("Segoe UI", 9F, FontStyle.Regular);
 
-            // Slot 1
-            lblSlot1 = new Label() { Text = "Slot 1:", Location = new Point(15, 26), Size = new Size(50, 20), Font = normalFont };
-            txtSlot1 = new TextBox() { Location = new Point(70, 23), Size = new Size(690, 23), Font = normalFont, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            // Slot 1 Code Combo
+            lblSlot1 = new Label() { Text = "Slot 1 Code Combo:", Location = new Point(15, 26), Size = new Size(130, 20), Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
+            txtSlot1 = new TextBox() { Location = new Point(150, 23), Size = new Size(610, 23), Font = normalFont, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
 
-            // Slot 2
-            lblSlot2 = new Label() { Text = "Slot 2:", Location = new Point(15, 54), Size = new Size(50, 20), Font = normalFont };
-            txtSlot2 = new TextBox() { Location = new Point(70, 51), Size = new Size(690, 23), Font = normalFont, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
-
-            // Slot 3
-            lblSlot3 = new Label() { Text = "Slot 3:", Location = new Point(15, 82), Size = new Size(50, 20), Font = normalFont };
-            txtSlot3 = new TextBox() { Location = new Point(70, 79), Size = new Size(690, 23), Font = normalFont, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
-
-            // Slot 4
-            lblSlot4 = new Label() { Text = "Slot 4:", Location = new Point(15, 110), Size = new Size(50, 20), Font = normalFont };
-            txtSlot4 = new TextBox() { Location = new Point(70, 107), Size = new Size(690, 23), Font = normalFont, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
-
-            // Nút Nhập ở dưới
+            // Nút Đăng ký nhân vật ở dưới
             btnImport = new Button();
-            btnImport.Text = "Nhập";
+            btnImport.Text = "Đăng ký nhân vật";
             btnImport.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            btnImport.Location = new Point(70, 134);
-            btnImport.Size = new Size(110, 24);
+            btnImport.Location = new Point(150, 54);
+            btnImport.Size = new Size(140, 26);
             btnImport.UseVisualStyleBackColor = true;
             btnImport.Click += new EventHandler(BtnImport_Click);
 
             btnClearInputs = new Button();
             btnClearInputs.Text = "Xóa trắng";
             btnClearInputs.Font = normalFont;
-            btnClearInputs.Location = new Point(190, 134);
-            btnClearInputs.Size = new Size(85, 24);
+            btnClearInputs.Location = new Point(298, 54);
+            btnClearInputs.Size = new Size(82, 26);
             btnClearInputs.UseVisualStyleBackColor = true;
             btnClearInputs.Click += (s, e) => {
                 txtSlot1.Clear();
-                txtSlot2.Clear();
-                txtSlot3.Clear();
-                txtSlot4.Clear();
             };
 
             btnGuide = new Button();
-            btnGuide.Text = "Cách lấy mã slot";
+            btnGuide.Text = "Hướng dẫn";
             btnGuide.Font = normalFont;
-            btnGuide.Location = new Point(285, 134);
-            btnGuide.Size = new Size(130, 24);
+            btnGuide.Location = new Point(388, 54);
+            btnGuide.Size = new Size(100, 26);
             btnGuide.UseVisualStyleBackColor = true;
             btnGuide.Click += (s, e) => GuideDialog.ShowGuide(this);
 
             lblGuideHint = new Label();
-            lblGuideHint.Text = "(* Bấm 'Cách lấy mã slot' để xem ảnh hướng dẫn trích xuất mã từ game)";
+            lblGuideHint.Text = "(* Bấm 'Hướng dẫn' để xem các bước lấy mã từ game)";
             lblGuideHint.Font = new Font("Segoe UI", 8.25F, FontStyle.Italic);
             lblGuideHint.ForeColor = Color.FromArgb(85, 85, 85);
-            lblGuideHint.Location = new Point(425, 138);
-            lblGuideHint.Size = new Size(345, 18);
+            lblGuideHint.Location = new Point(496, 58);
+            lblGuideHint.Size = new Size(264, 20);
             lblGuideHint.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
-            grpPart1.Controls.Add(lblSlot1); grpPart1.Controls.Add(txtSlot1);
-            grpPart1.Controls.Add(lblSlot2); grpPart1.Controls.Add(txtSlot2);
-            grpPart1.Controls.Add(lblSlot3); grpPart1.Controls.Add(txtSlot3);
-            grpPart1.Controls.Add(lblSlot4); grpPart1.Controls.Add(txtSlot4);
+            grpPart1.Controls.Add(lblSlot1);
+            grpPart1.Controls.Add(txtSlot1);
             grpPart1.Controls.Add(btnImport);
             grpPart1.Controls.Add(btnClearInputs);
             grpPart1.Controls.Add(btnGuide);
@@ -229,7 +212,7 @@ namespace FFComboCalculator
             grpPart2 = new GroupBox();
             grpPart2.Text = "2. Ghép thành combo";
             grpPart2.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            grpPart2.Location = new Point(12, 198);
+            grpPart2.Location = new Point(12, 132);
             grpPart2.Size = new Size(780, 115);
             grpPart2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
@@ -307,8 +290,8 @@ namespace FFComboCalculator
             grpPart3 = new GroupBox();
             grpPart3.Text = "3. Thanh progress và kết quả tính combo";
             grpPart3.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            grpPart3.Location = new Point(12, 318);
-            grpPart3.Size = new Size(780, 355);
+            grpPart3.Location = new Point(12, 253);
+            grpPart3.Size = new Size(780, 420);
             grpPart3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 
             lblProgressText = new Label() { Text = "Tiến độ sẵn sàng", Location = new Point(15, 23), Size = new Size(300, 16), Font = subHeaderFont };
@@ -408,15 +391,12 @@ namespace FFComboCalculator
 
             // Phần 1
             grpPart1.Text = I18n.T("1. Nhập dữ liệu nhân vật", "1. Character Data Input");
-            lblSlot1.Text = "Slot 1:";
-            lblSlot2.Text = "Slot 2:";
-            lblSlot3.Text = "Slot 3:";
-            lblSlot4.Text = "Slot 4:";
-            btnImport.Text = I18n.T("Nhập", "Import");
+            lblSlot1.Text = I18n.T("Slot 1 Code Combo:", "Slot 1 Code Combo:");
+            btnImport.Text = I18n.T("Đăng ký nhân vật", "Register Character");
             btnClearInputs.Text = I18n.T("Xóa trắng", "Clear");
-            btnGuide.Text = I18n.T("Cách lấy mã slot", "Slot Guide");
-            lblGuideHint.Text = I18n.T("(* Bấm 'Cách lấy mã slot' để xem ảnh hướng dẫn trích xuất mã từ game)",
-                                      "(* Click 'Slot Guide' to view tutorial on extracting codes from game)");
+            btnGuide.Text = I18n.T("Hướng dẫn", "Guide");
+            lblGuideHint.Text = I18n.T("(* Bấm 'Hướng dẫn' để xem các bước lấy mã từ game)",
+                                      "(* Click 'Guide' to view steps on getting code from game)");
 
             // Phần 2
             grpPart2.Text = I18n.T("2. Ghép thành combo", "2. Assemble Combo");
@@ -600,129 +580,137 @@ namespace FFComboCalculator
         }
 
         // -------------------------------------------------------------
-        // Xử lý Phần 1: Nhập dữ liệu nhân vật
+        // Xử lý Phần 1: Đăng ký nhân vật (tính toán từ 1 mã Slot 1)
         // -------------------------------------------------------------
         private void BtnImport_Click(object sender, EventArgs e)
         {
-            string[] rawInputs = new string[] { txtSlot1.Text, txtSlot2.Text, txtSlot3.Text, txtSlot4.Text };
-            List<int> filledSlots = new List<int>();
-            List<byte[]> extractedBlocks = new List<byte[]>();
-            string detectedName = "";
-
-            for (int i = 0; i < 4; i++)
+            string text = txtSlot1.Text.Trim();
+            if (string.IsNullOrEmpty(text))
             {
-                string text = rawInputs[i].Trim();
-                if (string.IsNullOrEmpty(text)) continue;
-
-                Match nameMatch = Regex.Match(text, @"^([A-Za-z0-9_\s\(\)\p{L}]+?)[\s\:\;\(]+#FF#");
-                if (nameMatch.Success && string.IsNullOrEmpty(detectedName))
-                {
-                    string candidate = nameMatch.Groups[1].Value.Trim();
-                    candidate = Regex.Replace(candidate, @"\(\d+\)", "").Trim();
-                    if (!string.IsNullOrEmpty(candidate)) detectedName = candidate;
-                }
-
-                Match m = Regex.Match(text, @"#FF#([A-Za-z0-9+/=]+)");
-                string code = m.Success ? ("#FF#" + m.Groups[1].Value) : text;
-
-                try
-                {
-                    byte[] p = PlainOf(code);
-                    if (p.Length < 2 || p[0] != 0 || p[1] != SEP)
-                    {
-                        MessageBox.Show(string.Format(I18n.T("Mã ở Slot {0} có header sai!", "Slot {0} code has an invalid header!"), i + 1),
-                            I18n.T("Lỗi định dạng", "Format Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    List<byte[]> segs = SplitSegments(p);
-                    if (segs.Count < 4)
-                    {
-                        MessageBox.Show(string.Format(I18n.T("Mã ở Slot {0} không đủ 4 slot nhân vật!", "Slot {0} code does not contain 4 character slots!"), i + 1),
-                            I18n.T("Lỗi cấu trúc", "Structure Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-                    byte[] targetSeg = segs[i];
-                    if (targetSeg.Length == 1 && targetSeg[0] == 1)
-                    {
-                        MessageBox.Show(string.Format(I18n.T("Mã ở Slot {0} là slot trống (none)!", "Slot {0} code is an empty slot (none)!"), i + 1),
-                            I18n.T("Thông báo", "Notice"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    filledSlots.Add(i + 1);
-                    extractedBlocks.Add(targetSeg);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(string.Format(I18n.T("Không thể giải mã Slot {0}: {1}", "Cannot decode Slot {0}: {1}"), i + 1, ex.Message),
-                        I18n.T("Lỗi giải mã", "Decode Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-            }
-
-            if (filledSlots.Count == 0)
-            {
-                MessageBox.Show(I18n.T("Vui lòng dán ít nhất 1 mã (#FF#...) vào các ô Slot 1, 2, 3 hoặc 4!", "Please paste at least 1 code (#FF#...) into Slot 1, 2, 3, or 4!"),
-                    I18n.T("Chưa có dữ liệu", "No Data"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    I18n.T("Vui lòng dán mã combo (#FF#...) của nhân vật vào ô Slot 1 Code Combo!",
+                           "Please paste character combo code (#FF#...) into Slot 1 Code Combo!"),
+                    I18n.T("Chưa có dữ liệu", "No Input Data"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
                 return;
             }
 
-            byte[] firstBlock = extractedBlocks[0];
-            for (int i = 1; i < extractedBlocks.Count; i++)
+            string detectedName = "";
+            Match nameMatch = Regex.Match(text, @"^([A-Za-z0-9_\s\(\)\p{L}]+?)[\s\:\;\(]+#FF#");
+            if (nameMatch.Success)
             {
-                if (!BytesEqual(firstBlock, extractedBlocks[i]))
+                string candidate = nameMatch.Groups[1].Value.Trim();
+                candidate = Regex.Replace(candidate, @"\(\d+\)", "").Trim();
+                if (!string.IsNullOrEmpty(candidate)) detectedName = candidate;
+            }
+
+            Match m = Regex.Match(text, @"#FF#([A-Za-z0-9+/=]+)");
+            string code = m.Success ? ("#FF#" + m.Groups[1].Value) : text;
+
+            byte[] targetBlock = null;
+            try
+            {
+                byte[] p = PlainOf(code);
+                if (p.Length < 2 || p[0] != 0 || p[1] != SEP)
                 {
-                    string mismatchMsg = string.Format(I18n.T(
-                        "Cảnh báo: Khối trích xuất ở Slot {0} không khớp với Slot {1}!\nSlot {0}: [{2}]\nSlot {1}: [{3}]",
-                        "Warning: Extracted block in Slot {0} does not match Slot {1}!\nSlot {0}: [{2}]\nSlot {1}: [{3}]"),
-                        filledSlots[i], filledSlots[0], string.Join(", ", firstBlock), string.Join(", ", extractedBlocks[i]));
-                    MessageBox.Show(mismatchMsg, I18n.T("Không đồng nhất", "Inconsistent Data"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(
+                        I18n.T("Mã combo có header không đúng định dạng Free Fire!", "Invalid combo code header format!"),
+                        I18n.T("Lỗi định dạng", "Format Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                List<byte[]> segs = SplitSegments(p);
+                if (segs.Count < 4)
+                {
+                    MessageBox.Show(
+                        I18n.T("Mã combo không đủ các đoạn dữ liệu nhân vật!", "Combo code lacks character data segments!"),
+                        I18n.T("Lỗi cấu trúc", "Structure Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Lấy slot 1 trước, nếu slot 1 trống thì tìm slot không trống đầu tiên
+                if (!BytesEqual(segs[0], NONE_SEG))
+                {
+                    targetBlock = segs[0];
+                }
+                else
+                {
+                    for (int i = 1; i < 4; i++)
+                    {
+                        if (!BytesEqual(segs[i], NONE_SEG))
+                        {
+                            targetBlock = segs[i];
+                            break;
+                        }
+                    }
+                }
+
+                if (targetBlock == null)
+                {
+                    MessageBox.Show(
+                        I18n.T("Mã combo nhập vào là combo trống (cả 4 slot đều trống, không có nhân vật nào)!",
+                               "The entered combo code is empty (all 4 slots are empty, no character found)!"),
+                        I18n.T("Thông báo", "Notice"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    string.Format(I18n.T("Không thể giải mã combo: {0}", "Cannot decode combo: {0}"), ex.Message),
+                    I18n.T("Lỗi giải mã", "Decode Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            StartProgress(I18n.T("Đang phân tích và nhập dữ liệu nhân vật...", "Analyzing and importing character data..."), () => {
-                string existingName = FindCharacterByBlock(firstBlock);
-                string blockStr = "[" + string.Join(", ", firstBlock) + "]";
+            StartProgress(I18n.T("Đang phân tích và đăng ký nhân vật...", "Analyzing and registering character..."), () => {
+                string existingName = FindCharacterByBlock(targetBlock);
+                string blockStr = "[" + string.Join(", ", targetBlock) + "]";
 
                 if (!string.IsNullOrEmpty(existingName))
                 {
                     AppendLog(string.Format(I18n.T(
-                        "==> NHẬP DỮ LIỆU: Nhân vật đã tồn tại!\r\n- Tên: {0}\r\n- Khối byte: {1}\r\n- Đã kiểm tra qua các slot: {2}\r\n",
-                        "==> IMPORT DATA: Character already exists!\r\n- Name: {0}\r\n- Byte block: {1}\r\n- Verified across slots: {2}\r\n"),
-                        existingName, blockStr, string.Join(", ", filledSlots)));
+                        "==> ĐĂNG KÝ NHÂN VẬT: Nhân vật đã tồn tại!\r\n- Tên: {0}\r\n- Khối byte: {1}\r\n- Đã tự động chọn vào Choicebox 1.\r\n",
+                        "==> REGISTER CHARACTER: Character already exists!\r\n- Name: {0}\r\n- Byte block: {1}\r\n- Automatically selected in Choicebox 1.\r\n"),
+                        existingName, blockStr));
                     txtResultCode.Text = existingName;
                     PopulateChoiceboxes(existingName);
+                    lblProgressText.Text = string.Format(I18n.T("Đã nhận diện: {0}", "Identified: {0}"), existingName);
                     string existBoxMsg = string.Format(I18n.T(
-                        "Nhân vật đã có sẵn trong cơ sở dữ liệu:\n- Tên: {0}\n- Khối: {1}",
-                        "Character already exists in database:\n- Name: {0}\n- Block: {1}"), existingName, blockStr);
+                        "Nhân vật này đã có sẵn trong cơ sở dữ liệu:\n- Tên: {0}\n- Khối byte: {1}",
+                        "This character already exists in the database:\n- Name: {0}\n- Byte block: {1}"), existingName, blockStr);
                     MessageBox.Show(existBoxMsg, I18n.T("Đã nhận diện", "Identified"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
                     string promptMsg = string.IsNullOrEmpty(detectedName)
-                        ? string.Format(I18n.T("Phát hiện nhân vật mới!\nKhối byte: {0}\nVui lòng nhập tên nhân vật:", "New character detected!\nByte block: {0}\nPlease enter character name:"), blockStr)
-                        : string.Format(I18n.T("Phát hiện nhân vật mới!\nKhối byte: {0}\nXác nhận hoặc chỉnh sửa tên nhân vật:", "New character detected!\nByte block: {0}\nConfirm or edit character name:"), blockStr);
+                        ? string.Format(I18n.T("Phát hiện nhân vật mới!\nKhối byte: {0}\nVui lòng nhập tên nhân vật:",
+                                              "New character detected!\nByte block: {0}\nPlease enter character name:"), blockStr)
+                        : string.Format(I18n.T("Phát hiện nhân vật mới!\nKhối byte: {0}\nXác nhận hoặc chỉnh sửa tên nhân vật:",
+                                              "New character detected!\nByte block: {0}\nConfirm or edit character name:"), blockStr);
                     string promptTitle = string.IsNullOrEmpty(detectedName)
-                        ? I18n.T("Nhập tên nhân vật mới", "Enter New Character Name")
-                        : I18n.T("Xác nhận tên", "Confirm Name");
+                        ? I18n.T("Đăng ký nhân vật mới", "Register New Character")
+                        : I18n.T("Xác nhận tên nhân vật", "Confirm Character Name");
 
                     string newName = PromptDialog.Show(promptMsg, promptTitle, detectedName ?? "");
 
                     if (string.IsNullOrEmpty(newName))
                     {
-                        AppendLog(string.Format(I18n.T("Đã hủy lưu nhân vật mới (khối: {0}).", "Cancelled saving new character (block: {0})."), blockStr));
+                        AppendLog(string.Format(I18n.T("Đã hủy đăng ký nhân vật mới (khối byte: {0}).",
+                                                      "Cancelled registering new character (byte block: {0})."), blockStr));
+                        lblProgressText.Text = I18n.T("Đã hủy đăng ký.", "Registration cancelled.");
                         return;
                     }
 
-                    SaveCharacter(newName, firstBlock);
+                    SaveCharacter(newName, targetBlock);
                     PopulateChoiceboxes(newName);
                     txtResultCode.Text = newName;
                     AppendLog(string.Format(I18n.T(
-                        "==> THÀNH CÔNG: Đã thêm nhân vật mới!\r\n- Tên: {0}\r\n- Khối byte: {1}\r\n- Đã lưu vào characters.json\r\n- Cập nhật danh sách Choicebox.\r\n",
-                        "==> SUCCESS: Added new character!\r\n- Name: {0}\r\n- Byte block: {1}\r\n- Saved to characters.json\r\n- Updated Choicebox list.\r\n"),
+                        "==> THÀNH CÔNG: Đã đăng ký nhân vật mới!\r\n- Tên: {0}\r\n- Khối byte: {1}\r\n- Đã lưu vào characters.json\r\n- Cập nhật danh sách Choicebox.\r\n",
+                        "==> SUCCESS: Registered new character!\r\n- Name: {0}\r\n- Byte block: {1}\r\n- Saved to characters.json\r\n- Updated Choicebox list.\r\n"),
                         newName, blockStr));
-                    MessageBox.Show(string.Format(I18n.T("Đã lưu thành công nhân vật '{0}' vào hệ thống!", "Successfully saved character '{0}' to the system!"), newName),
+                    lblProgressText.Text = string.Format(I18n.T("Đã đăng ký thành công: {0}", "Successfully registered: {0}"), newName);
+                    MessageBox.Show(string.Format(I18n.T("Đã đăng ký thành công nhân vật '{0}' vào hệ thống!",
+                                                        "Successfully registered character '{0}' into the system!"), newName),
                         I18n.T("Thành công", "Success"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             });
@@ -779,12 +767,14 @@ namespace FFComboCalculator
             });
         }
 
+        public void FillSlot1(string s1)
+        {
+            txtSlot1.Text = s1 ?? "";
+        }
+
         public void FillSlots(string s1, string s2, string s3, string s4)
         {
             txtSlot1.Text = s1 ?? "";
-            txtSlot2.Text = s2 ?? "";
-            txtSlot3.Text = s3 ?? "";
-            txtSlot4.Text = s4 ?? "";
         }
 
         // -------------------------------------------------------------
@@ -1116,12 +1106,12 @@ namespace FFComboCalculator
 
             // Kiểm tra đa ngôn ngữ Tiếng Việt & English
             m.SetLanguage("en");
-            if (I18n.T("Nhập", "Import") != "Import") return false;
+            if (I18n.T("Đăng ký nhân vật", "Register Character") != "Register Character") return false;
             if (m.cbChoice5.Items[0].ToString() != "No Shop Tool") return false;
             if (m.cbChoice6.Items[1].ToString() != "Mr. Waggor (Penguin)") return false;
 
             m.SetLanguage("vi");
-            if (I18n.T("Nhập", "Import") != "Nhập") return false;
+            if (I18n.T("Đăng ký nhân vật", "Register Character") != "Đăng ký nhân vật") return false;
             if (m.cbChoice5.Items[0].ToString() != "Không Shop") return false;
             if (m.cbChoice6.Items[1].ToString() != "Cánh cụt") return false;
 
@@ -1452,15 +1442,19 @@ namespace FFComboCalculator
             btnFillPart1.Location = new Point(160, 188);
             btnFillPart1.Size = new Size(180, 28);
             btnFillPart1.Font = boldFont;
+            btnFillPart1.Text = I18n.T("Nạp mã vào Phần 1", "Load Code to Part 1");
+            btnFillPart1.Location = new Point(160, 188);
+            btnFillPart1.Size = new Size(180, 28);
+            btnFillPart1.Font = boldFont;
             btnFillPart1.UseVisualStyleBackColor = true;
             btnFillPart1.Click += (s, e) => {
                 if (mainForm != null)
                 {
-                    mainForm.FillSlots(txtSlotCode1.Text, txtSlotCode2.Text, txtSlotCode3.Text, txtSlotCode4.Text);
+                    mainForm.FillSlot1(txtSlotCode1.Text);
                     string fillSuccess = string.Format(I18n.T(
-                        "Đã nạp 4 mã vào Slot 1, 2, 3, 4 ở Phần 1 giao diện chính!\nBạn chỉ cần bấm nút '{0}' tại Phần 1 để lưu nhân vật này.",
-                        "Successfully loaded 4 codes into Slot 1, 2, 3, 4 in Part 1!\nSimply click '{0}' in Part 1 to register this character."),
-                        I18n.T("Nhập", "Import"));
+                        "Đã nạp mã Slot 1 vào ô 'Slot 1 Code Combo' ở Phần 1 giao diện chính!\nBạn chỉ cần bấm nút '{0}' tại Phần 1 để lưu nhân vật này.",
+                        "Successfully loaded Slot 1 code into 'Slot 1 Code Combo' in Part 1!\nSimply click '{0}' in Part 1 to register this character."),
+                        I18n.T("Đăng ký nhân vật", "Register Character"));
                     MessageBox.Show(fillSuccess, I18n.T("Đã nạp thành công", "Loaded Successfully"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.Close();
                 }
@@ -1468,8 +1462,8 @@ namespace FFComboCalculator
 
             lblCharHint = new Label();
             lblCharHint.Text = I18n.T(
-                "(* Gợi ý: Bấm 'Nạp 4 mã vào Phần 1' để tự động điền 4 mã trên vào 4 ô Slot của Phần 1 rồi bấm 'Nhập' để lưu ngay nhân vật mới mà không cần copy paste thủ công)",
-                "(* Tip: Click 'Load 4 Codes to Part 1' to autofill all 4 slot boxes in Part 1, then click 'Import' to register the character without manual copying)");
+                "(* Gợi ý: Bấm 'Nạp mã vào Phần 1' để tự động điền mã Slot 1 của nhân vật này vào ô Slot 1 ở Phần 1 rồi bấm 'Đăng ký nhân vật' mà không cần copy paste thủ công)",
+                "(* Tip: Click 'Load Code to Part 1' to autofill the Slot 1 code into Part 1, then click 'Register Character' without manual copy-pasting)");
             lblCharHint.Location = new Point(0, 224);
             lblCharHint.Size = new Size(685, 45);
             lblCharHint.Font = new Font("Segoe UI", 8.25F, FontStyle.Italic);
@@ -1729,8 +1723,8 @@ namespace FFComboCalculator
 
         public GuideDialog()
         {
-            this.Text = I18n.T("Hướng dẫn: Cách lấy mã slot", "Guide: How to Extract Slot Codes");
-            this.Size = new Size(720, 755);
+            this.Text = I18n.T("Hướng dẫn: Lấy mã nhân vật để đăng ký", "Guide: Extract Character Code for Registration");
+            this.Size = new Size(680, 560);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -1738,55 +1732,126 @@ namespace FFComboCalculator
             this.BackColor = SystemColors.Control;
             this.Font = new Font("Segoe UI", 9F);
 
-            Label lblGuide = new Label() {
-                Text = I18n.T(
-                    "Để lấy mã của các slot để nhập một nhân vật mới vào hộp chọn trong phần ghép combo thì hãy vào game rồi chọn 1 nhân vật duy nhất cần nhập vào rồi làm theo hình ảnh để lấy mã các slot của nhân vật mong muốn.",
-                    "To extract slot codes for a new character, launch the game, equip only the desired character with no other skills, and follow the screenshot below to copy each slot code."),
-                Location = new Point(16, 12),
-                Size = new Size(672, 50),
+            string guideTextVi =
+                "Hướng dẫn: Lấy mã nhân vật để đăng ký\r\n\r\n" +
+                "Mã nhân vật là gì? Đó là một dòng chữ bắt đầu bằng #FF#. Công cụ dùng dòng chữ này để nhận ra bạn đang chọn nhân vật nào. Bạn không cần hiểu nó nghĩa là gì, chỉ cần sao chép đúng.\r\n\r\n" +
+                "Lưu ý: Mỗi nhân vật cần một mã riêng. Muốn đăng ký 5 nhân vật thì làm 5 lần.\r\n\r\n" +
+                "Các bước\r\n\r\n" +
+                "Bước 1. Đưa game về trạng thái trống.\r\n" +
+                "Sao chép dòng mã combo dưới đây và dán nó vào mục combo game:\r\n" +
+                "#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=\r\n" +
+                "Combo này sẽ xóa sạch combo hiện tại: 4 ô trống, không pet, không công cụ hỗ trợ (CCHT).\r\n\r\n" +
+                "Bước 2. Chọn nhân vật cần đăng ký.\r\n" +
+                "Chọn đúng 1 nhân vật vào ô đầu tiên. Ba ô còn lại để trống. Không bật Pet hay CCHT.\r\n\r\n" +
+                "Bước 3. Lấy mã.\r\n" +
+                "Bấm [Sao chép mã] để copy mã cho việc đăng ký.\r\n\r\n" +
+                "Bước 4. Đăng ký.\r\n" +
+                "Quay lại công cụ này, dán mã vào ô nhập của Phần 1 và bấm Đăng ký.";
+
+            string guideTextEn =
+                "Guide: Extract Character Code for Registration\r\n\r\n" +
+                "What is a character code? It is a text string starting with #FF#. The tool uses this code to identify which character you selected. You do not need to understand what it means, simply copy it accurately.\r\n\r\n" +
+                "Note: Each character requires a unique code. If you want to register 5 characters, repeat this 5 times.\r\n\r\n" +
+                "Steps\r\n\r\n" +
+                "Step 1. Reset game to empty state.\r\n" +
+                "Copy the combo code below and paste it into the in-game combo section:\r\n" +
+                "#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=\r\n" +
+                "This combo clears your active combo: 4 empty slots, no pet, no loadout/shop tool.\r\n\r\n" +
+                "Step 2. Select the character to register.\r\n" +
+                "Equip exactly 1 character in the first slot. Leave the other 3 slots empty. Do not equip Pet or loadout tools.\r\n\r\n" +
+                "Step 3. Copy code.\r\n" +
+                "Click [Copy Code] in-game to copy the code for registration.\r\n\r\n" +
+                "Step 4. Register.\r\n" +
+                "Return to this tool, paste the code into the input field in Part 1 and click Register Character.";
+
+            TextBox txtGuide = new TextBox() {
+                Multiline = true,
+                ReadOnly = true,
+                ScrollBars = ScrollBars.Vertical,
+                BackColor = Color.White,
                 Font = new Font("Segoe UI", 9.5F, FontStyle.Regular),
-                ForeColor = Color.FromArgb(20, 20, 20)
+                Location = new Point(16, 14),
+                Size = new Size(632, 435),
+                Text = I18n.T(guideTextVi, guideTextEn)
             };
 
-            PictureBox pb = new PictureBox() {
-                Location = new Point(16, 68),
-                Size = new Size(672, 600),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BorderStyle = BorderStyle.FixedSingle,
-                BackColor = Color.Black
+            Button btnCopyReset = new Button() {
+                Text = I18n.T("Sao chép mã xóa trống (Bước 1)", "Copy Reset Code (Step 1)"),
+                Location = new Point(16, 460),
+                Size = new Size(250, 32),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                UseVisualStyleBackColor = true
+            };
+            btnCopyReset.Click += (s, e) => {
+                Clipboard.SetText("#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=");
+                MessageBox.Show(
+                    I18n.T("Đã sao chép mã combo xóa trống (#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=) vào Clipboard!\nDán mã này vào mục combo trong game để xóa sạch trạng thái trước khi chọn nhân vật.",
+                           "Reset combo code (#FF#dGJ/ZW9jYmd4dW9yZH9xZ38=) copied to Clipboard!\nPaste it in game to clear active combo before selecting your character."),
+                    I18n.T("Đã sao chép", "Copied"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
-            string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "huong_dan_slot.png");
-            if (File.Exists(localPath))
-            {
-                try { pb.Image = Image.FromFile(localPath); } catch { }
-            }
-            if (pb.Image == null)
-            {
-                try
-                {
-                    var asm = System.Reflection.Assembly.GetExecutingAssembly();
-                    using (var s = asm.GetManifestResourceStream("huong_dan_slot.png"))
-                    {
-                        if (s != null) pb.Image = Image.FromStream(s);
-                    }
-                } catch { }
-            }
+            Button btnScreenshot = new Button() {
+                Text = I18n.T("Xem ảnh minh họa", "View Screenshot"),
+                Location = new Point(276, 460),
+                Size = new Size(160, 32),
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                UseVisualStyleBackColor = true
+            };
+            btnScreenshot.Click += (s, e) => ShowScreenshot(this);
 
             Button btnClose = new Button() {
                 Text = I18n.T("Đóng", "Close"),
                 DialogResult = DialogResult.OK,
-                Location = new Point(300, 680),
-                Size = new Size(110, 28),
+                Location = new Point(538, 460),
+                Size = new Size(110, 32),
                 Font = new Font("Segoe UI", 9F, FontStyle.Bold),
                 UseVisualStyleBackColor = true
             };
 
-            this.Controls.Add(lblGuide);
-            this.Controls.Add(pb);
+            this.Controls.Add(txtGuide);
+            this.Controls.Add(btnCopyReset);
+            this.Controls.Add(btnScreenshot);
             this.Controls.Add(btnClose);
             this.AcceptButton = btnClose;
             this.CancelButton = btnClose;
+        }
+
+        private static void ShowScreenshot(IWin32Window owner)
+        {
+            using (Form imgForm = new Form())
+            {
+                imgForm.Text = I18n.T("Ảnh minh họa lấy mã slot trong game", "In-Game Slot Code Screenshot");
+                imgForm.Size = new Size(700, 720);
+                imgForm.StartPosition = FormStartPosition.CenterParent;
+                imgForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                imgForm.MaximizeBox = false;
+                imgForm.MinimizeBox = false;
+                imgForm.BackColor = Color.Black;
+
+                PictureBox pb = new PictureBox() {
+                    Dock = DockStyle.Fill,
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    BackColor = Color.Black
+                };
+                string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "huong_dan_slot.png");
+                if (File.Exists(localPath))
+                {
+                    try { pb.Image = Image.FromFile(localPath); } catch { }
+                }
+                if (pb.Image == null)
+                {
+                    try
+                    {
+                        var asm = System.Reflection.Assembly.GetExecutingAssembly();
+                        using (var s = asm.GetManifestResourceStream("huong_dan_slot.png"))
+                        {
+                            if (s != null) pb.Image = Image.FromStream(s);
+                        }
+                    } catch { }
+                }
+                imgForm.Controls.Add(pb);
+                imgForm.ShowDialog(owner);
+            }
         }
     }
 }
